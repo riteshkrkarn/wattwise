@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const BillController_1 = require("../controllers/BillController");
+const validateResource_1 = require("../middlewares/validateResource");
+const applianceZodSchema_1 = require("../schema/applianceZodSchema");
+const router = (0, express_1.Router)();
+router.get("/presets", BillController_1.BillController.getPresets);
+router.post("/estimate", (0, validateResource_1.validate)(applianceZodSchema_1.estimationSchema), BillController_1.BillController.estimate);
+router.post("/compare", (0, validateResource_1.validate)(applianceZodSchema_1.comparisonSchema), BillController_1.BillController.compare);
+exports.default = router;

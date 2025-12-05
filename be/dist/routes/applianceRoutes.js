@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const UserApplianceController_1 = require("../controllers/UserApplianceController");
+const validateResource_1 = require("../middlewares/validateResource");
+const applianceZodSchema_1 = require("../schema/applianceZodSchema");
+const router = (0, express_1.Router)();
+router.post("/", (0, validateResource_1.validate)(applianceZodSchema_1.applianceSchema), UserApplianceController_1.UserApplianceController.createAppliance);
+router.get("/", UserApplianceController_1.UserApplianceController.getUserAppliances);
+router.delete("/:id", UserApplianceController_1.UserApplianceController.deleteAppliance);
+exports.default = router;
