@@ -1,0 +1,235 @@
+.settings-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.settings-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--spacing-2xl);
+}
+
+.settings-container h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0 0 var(--spacing-3xl) 0;
+  letter-spacing: -0.025em;
+}
+
+/* Settings Sections */
+.settings-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+.settings-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xl) 0;
+}
+
+/* Forms */
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.profile-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group select {
+  padding: var(--spacing-md);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: #e0e0e0;
+  font-size: 0.9375rem;
+  transition: all var(--transition-base);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
+}
+
+.form-group select {
+  cursor: pointer;
+  color: #e0e0e0 !important;
+}
+
+.form-group select option {
+  background: #1a1f3a !important;
+  color: #e0e0e0 !important;
+}
+
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  border: none;
+}
+
+.btn-primary {
+  background: var(--accent-purple);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--primary);
+  box-shadow: 0 4px 12px rgba(167, 139, 250, 0.3);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--accent-purple);
+}
+
+.btn-danger {
+  background: transparent;
+  border: 1px solid #ff4444;
+  color: #ff4444;
+}
+
+.btn-danger:hover {
+  background: rgba(255, 68, 68, 0.1);
+  border-color: #ff4444;
+}
+
+/* Account Actions */
+.account-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.account-actions button {
+  width: 100%;
+  text-align: left;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-2xl);
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xl) 0;
+}
+
+.modal-content p {
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-lg) 0;
+  line-height: 1.6;
+}
+
+.warning-text {
+  color: #ff4444 !important;
+  font-weight: 500;
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  margin-top: var(--spacing-xl);
+}
+
+.modal-actions button {
+  width: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .settings-container {
+    padding: var(--spacing-lg);
+  }
+
+  .profile-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: var(--spacing-xl);
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+}

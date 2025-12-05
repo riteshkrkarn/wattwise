@@ -1,0 +1,11 @@
+.energy-bar-chart {
+  width: 100%;
+}
+
+.energy-bar-chart .recharts-bar-rectangle {
+  transition: opacity 0.2s ease;
+}
+
+.energy-bar-chart .recharts-bar-rectangle:hover {
+  opacity: 1 !important;
+}
