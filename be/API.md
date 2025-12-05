@@ -343,6 +343,40 @@ Fetches bill history for a user.
 
 ---
 
+## PDF Bill Upload
+
+### POST `/bills/upload`
+Uploads a PDF electricity bill and extracts key data using AI.
+
+**Headers:**
+- `Authorization`: `Bearer <accessToken>`
+- `Content-Type`: `multipart/form-data`
+
+**Request Body (form-data):**
+- `billPdf`: PDF file (max 10MB)
+
+**Response (200):**
+```json
+{
+  "statusCode": 200,
+  "data": {
+    "totalAmount": 3450.50,
+    "totalUnits": 420,
+    "billingPeriod": "Oct 2023 - Nov 2023",
+    "consumerNumber": "1234567890",
+    "confidence": "high"
+  },
+  "message": "Bill parsed successfully"
+}
+```
+
+**Error Responses:**
+- `400`: No file uploaded / Invalid file type
+- `401`: Unauthorized
+- `500`: Failed to parse bill
+
+---
+
 ## AI Analysis
 
 ### POST `/ai/analyze`
