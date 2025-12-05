@@ -17,6 +17,9 @@ export class BillController {
 
   static estimate = asyncHandler(async (req: Request, res: Response) => {
     const { appliances, rate } = req.body;
+    console.log(
+      `[BillController] Estimating bill for ${appliances?.length} appliances`
+    );
 
     if (!appliances || !Array.isArray(appliances)) {
       throw new ApiError(400, "Invalid input: appliances array required");
@@ -33,6 +36,9 @@ export class BillController {
 
   static compare = asyncHandler(async (req: Request, res: Response) => {
     const { estimatedData, actualBill, threshold } = req.body;
+    console.log(
+      `[BillController] Comparing bill. Actual: ${actualBill}, Estimated: ${estimatedData?.totalCost}`
+    );
 
     if (!estimatedData || !actualBill) {
       throw new ApiError(

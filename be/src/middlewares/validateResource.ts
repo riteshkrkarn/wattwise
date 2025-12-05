@@ -18,6 +18,7 @@ export const validate =
           field: err.path.join(".").replace("body.", ""),
           message: err.message,
         }));
+        console.log(`[Validation Failed] ${JSON.stringify(formattedErrors)}`);
         // Pass to global error handler
         return next(new ApiError(400, "Validation failed", formattedErrors));
       }

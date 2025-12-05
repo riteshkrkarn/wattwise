@@ -35,7 +35,9 @@ AIController.analyze = (0, AsyncHandler_1.asyncHandler)((req, res) => __awaiter(
     const pythonScriptPath = path_1.default.join(__dirname, "../python-agent/agent.py");
     // Prepare data for python script
     const inputData = JSON.stringify(billData);
-    const pythonProcess = (0, child_process_1.spawn)("python", [pythonScriptPath]);
+    // Use venv python
+    const pythonExecutable = path_1.default.resolve(__dirname, "../../venv/Scripts/python.exe");
+    const pythonProcess = (0, child_process_1.spawn)(pythonExecutable, [pythonScriptPath]);
     let outputData = "";
     let errorData = "";
     pythonProcess.stdin.write(inputData);

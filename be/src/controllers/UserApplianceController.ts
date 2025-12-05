@@ -7,11 +7,20 @@ import { ApiError } from "../utils/ApiError";
 export class UserApplianceController {
   // Create a new appliance
   static createAppliance = asyncHandler(async (req: Request, res: Response) => {
-    // We assume userId comes from auth middleware, but for now we might need to pass it in body or header
-    // or just hardcode/mock it if auth isn't set up yet.
-    // Let's assume req.body contains userId for now or we extract it.
+    // We assume userId comes from auth middleware
+    const userId = req.user?._id;
+    if (!userId) {
+      throw new ApiError(401, "Unauthorized - User ID missing");
+    }
 
-    const appliance = new UserAppliance(req.body);
+    console.log(
+      `[UserApplianceController] Creating appliance: ${req.body.name} for user ${userId}`
+    );
+
+    const appliance = new UserAppliance({
+      ...req.body,
+      userId,
+    });
     await appliance.save();
     res
       .status(201)
@@ -21,9 +30,9 @@ export class UserApplianceController {
   // Get all appliances for a user
   static getUserAppliances = asyncHandler(
     async (req: Request, res: Response) => {
-      const { userId } = req.query; // or req.params depending on route
+      const userId = req.user?._id;
       if (!userId) {
-        throw new ApiError(400, "UserId required");
+        throw new ApiError(401, "Unauthorized - User ID missing");
       }
 
       const appliances = await UserAppliance.find({ userId });
