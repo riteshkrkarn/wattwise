@@ -12,6 +12,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BillController = void 0;
 const BillService_1 = require("../services/BillService");
+const BillRecord_1 = require("../models/BillRecord");
 const presets_1 = require("../data/presets");
 const AsyncHandler_1 = require("../utils/AsyncHandler");
 const ApiResponse_1 = require("../utils/ApiResponse");
@@ -42,4 +43,38 @@ BillController.compare = (0, AsyncHandler_1.asyncHandler)((req, res) => __awaite
     }
     const result = BillService_1.BillService.compareAndNormalize(estimatedData, actualBill, threshold);
     res.status(200).json(new ApiResponse_1.ApiResponse(200, result, "Comparison complete"));
+}));
+BillController.saveRecord = (0, AsyncHandler_1.asyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // aligning with UserApplianceController: extracting userId from body
+    const { userId, totalEstimatedUnits, totalEstimatedCost, actualBillAmount, breakdown, discrepancyRatio, metadata, } = req.body;
+    if (!userId) {
+        throw new ApiError_1.ApiError(400, "UserId is required");
+    }
+    // Basic validation
+    if (totalEstimatedCost === undefined || !breakdown) {
+        throw new ApiError_1.ApiError(400, "Missing required bill data (cost, breakdown)");
+    }
+    const record = yield BillRecord_1.BillRecord.create({
+        userId,
+        totalEstimatedUnits,
+        totalEstimatedCost,
+        actualBillAmount, // can be null
+        discrepancyRatio,
+        breakdown,
+        metadata,
+        date: new Date(),
+    });
+    res
+        .status(201)
+        .json(new ApiResponse_1.ApiResponse(201, record, "Bill record saved successfully"));
+}));
+BillController.getHistory = (0, AsyncHandler_1.asyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.query;
+    if (!userId) {
+        throw new ApiError_1.ApiError(400, "UserId is required");
+    }
+    const history = yield BillRecord_1.BillRecord.find({ userId }).sort({ date: -1 });
+    res
+        .status(200)
+        .json(new ApiResponse_1.ApiResponse(200, history, "Bill history fetched successfully"));
 }));

@@ -8,4 +8,6 @@ const router = (0, express_1.Router)();
 router.get("/presets", BillController_1.BillController.getPresets);
 router.post("/estimate", (0, validateResource_1.validate)(applianceZodSchema_1.estimationSchema), BillController_1.BillController.estimate);
 router.post("/compare", (0, validateResource_1.validate)(applianceZodSchema_1.comparisonSchema), BillController_1.BillController.compare);
+router.post("/save", BillController_1.BillController.saveRecord);
+router.get("/history", BillController_1.BillController.getHistory);
 exports.default = router;

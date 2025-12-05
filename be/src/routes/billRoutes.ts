@@ -11,5 +11,7 @@ const router = Router();
 router.get("/presets", BillController.getPresets);
 router.post("/estimate", validate(estimationSchema), BillController.estimate);
 router.post("/compare", validate(comparisonSchema), BillController.compare);
+router.post("/save", BillController.saveRecord);
+router.get("/history", BillController.getHistory);
 
 export default router;
