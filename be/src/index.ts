@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import billRoutes from "./routes/billRoutes";
 import applianceRoutes from "./routes/applianceRoutes";
+import aiRoutes from "./routes/aiRoutes";
 import { errorHandler } from "./middlewares/errorHandler";
 
 dotenv.config();
@@ -18,6 +19,7 @@ app.use(express.json()); // Built-in body-parser
 // Routes
 app.use("/api/bills", billRoutes);
 app.use("/api/appliances", applianceRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.get("/", (req, res) => {
   res.send("Byte Hackathon Backend is running!");

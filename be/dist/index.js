@@ -9,6 +9,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const billRoutes_1 = __importDefault(require("./routes/billRoutes"));
 const applianceRoutes_1 = __importDefault(require("./routes/applianceRoutes"));
+const aiRoutes_1 = __importDefault(require("./routes/aiRoutes"));
 const errorHandler_1 = require("./middlewares/errorHandler");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -19,6 +20,7 @@ app.use(express_1.default.json()); // Built-in body-parser
 // Routes
 app.use("/api/bills", billRoutes_1.default);
 app.use("/api/appliances", applianceRoutes_1.default);
+app.use("/api/ai", aiRoutes_1.default);
 app.get("/", (req, res) => {
     res.send("Byte Hackathon Backend is running!");
 });
