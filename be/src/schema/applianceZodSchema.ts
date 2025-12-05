@@ -56,3 +56,27 @@ export const comparisonSchema = z.object({
     }),
   }),
 });
+
+export const saveRecordSchema = z.object({
+  body: z.object({
+    // userId is extracted from token, so we don't validate it in body
+    totalEstimatedUnits: z.number().min(0),
+    totalEstimatedCost: z.number().min(0),
+    actualBillAmount: z.number().nullable().optional(),
+    discrepancyRatio: z.number().nullable().optional(),
+    breakdown: z
+      .array(
+        z.object({
+          name: z.string(),
+          count: z.number().min(1),
+          hours: z.number().min(0).max(24),
+          watts: z.number().min(0),
+          monthlyUnits: z.number().min(0),
+          estimatedCost: z.number().min(0),
+          normalizedCost: z.number().optional(), // Optional since it's calculated
+        })
+      )
+      .nonempty("Breakdown cannot be empty"),
+    metadata: z.record(z.string(), z.any()).optional(),
+  }),
+});

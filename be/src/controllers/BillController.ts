@@ -58,7 +58,6 @@ export class BillController {
   static saveRecord = asyncHandler(async (req: Request, res: Response) => {
     // aligning with UserApplianceController: extracting userId from body
     const {
-      userId,
       totalEstimatedUnits,
       totalEstimatedCost,
       actualBillAmount,
@@ -67,8 +66,9 @@ export class BillController {
       metadata,
     } = req.body;
 
+    const userId = req.user?._id;
     if (!userId) {
-      throw new ApiError(400, "UserId is required");
+      throw new ApiError(401, "Unauthorized - User ID missing");
     }
 
     // Basic validation
@@ -93,10 +93,10 @@ export class BillController {
   });
 
   static getHistory = asyncHandler(async (req: Request, res: Response) => {
-    const { userId } = req.query;
+    const userId = req.user?._id;
 
     if (!userId) {
-      throw new ApiError(400, "UserId is required");
+      throw new ApiError(401, "Unauthorized - User ID missing");
     }
 
     const history = await BillRecord.find({ userId }).sort({ date: -1 });
