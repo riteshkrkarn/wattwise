@@ -172,8 +172,8 @@ const Dashboard: React.FC = () => {
                 )}
               </div>
             </div>
-          ) : (
-            <div className="bill-card-minimal empty-state fade-in">
+          ) : null
+          /* <div className="bill-card-minimal empty-state fade-in">
               <div className="empty-state-content">
                 <span className="empty-icon">📊</span>
                 <p className="empty-title">No bill data yet</p>
@@ -181,8 +181,8 @@ const Dashboard: React.FC = () => {
                   Add your first bill to start tracking
                 </p>
               </div>
-            </div>
-          )}
+            </div> */
+          }
         </div>
 
         {/* Energy Consumption Section - Show demo charts for now */}
