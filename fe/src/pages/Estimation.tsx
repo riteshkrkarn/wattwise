@@ -8,6 +8,7 @@ import type {
   ComparisonResult,
   AIResult,
   Appliance,
+  BreakdownItem,
 } from "../utils/api";
 import toast from "react-hot-toast";
 import { Leaf, AlertTriangle, CheckCircle, TrendingDown } from "lucide-react";
@@ -85,10 +86,12 @@ const Estimation: React.FC = () => {
     };
 
     runInitialAnalysis();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [billData, navigate]);
 
-  const runAIAnalysis = async (breakdown: any[], totalUnits: number) => {
+  const runAIAnalysis = async (
+    breakdown: BreakdownItem[],
+    totalUnits: number
+  ) => {
     try {
       setAnalyzing(true);
       const aiRes = await aiAPI.analyze({
@@ -97,8 +100,8 @@ const Estimation: React.FC = () => {
       });
       const aiData = aiRes.data;
       setResults((prev) => (prev ? { ...prev, ai: aiData } : null));
-    } catch (error) {
-      console.error("AI Analysis failed", error);
+    } catch {
+      console.error("AI Analysis failed");
       toast.error("AI Analysis failed");
     } finally {
       setAnalyzing(false);
@@ -119,7 +122,7 @@ const Estimation: React.FC = () => {
       await billsAPI.save(payload);
       toast.success("Analysis saved to history!");
       navigate("/dashboard");
-    } catch (error) {
+    } catch {
       toast.error("Failed to save record");
     }
   };
