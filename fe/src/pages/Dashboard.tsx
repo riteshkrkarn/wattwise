@@ -135,7 +135,15 @@ const Dashboard: React.FC = () => {
           <div className="time-date-container">
             <RelativeTimeCard date={currentTime} side="bottom">
               <div className="time-display" style={{ cursor: "pointer" }}>
-                Date & Time
+                {new Date(currentTime).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })} • {new Date(currentTime).toLocaleTimeString("en-US", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
               </div>
             </RelativeTimeCard>
           </div>
