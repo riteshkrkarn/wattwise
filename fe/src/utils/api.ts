@@ -67,7 +67,14 @@ const apiRequest = async <T = unknown>(
   options: RequestOptions = {}
 ): Promise<T> => {
   const token = getAuthToken();
-
+  const fullUrl = `${API_BASE_URL}${endpoint}`;
+  const method = options.method || 'GET';
+  
+  // Log request
+  console.log('\n' + '🌐'.repeat(40));
+  console.log(`📡 API Request: ${method} ${endpoint}`);
+  console.log(`🔗 Full URL: ${fullUrl}`);
+  
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     ...options.headers,
@@ -75,22 +82,43 @@ const apiRequest = async <T = unknown>(
 
   if (token) {
     (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+    console.log('🔐 Auth Token: Present');
+  } else {
+    console.log('🔓 Auth Token: None');
+  }
+  
+  if (options.body) {
+    console.log('📦 Request Body:', options.body);
   }
 
+  const startTime = Date.now();
+  
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(fullUrl, {
       ...options,
       headers,
     });
 
     const data = await response.json();
+    const duration = Date.now() - startTime;
+
+    console.log(`⏱️  Duration: ${duration}ms`);
+    console.log(`✅ Status: ${response.status} ${response.statusText}`);
+    console.log('📥 Response:', JSON.stringify(data, null, 2));
+    console.log('🌐'.repeat(40) + '\n');
 
     if (!response.ok) {
+      console.error('❌ API Error:', data.message || 'Something went wrong');
       throw new Error(data.message || "Something went wrong");
     }
 
     return data as T;
   } catch (error) {
+    const duration = Date.now() - startTime;
+    console.log(`⏱️  Duration: ${duration}ms`);
+    console.error('❌ API Request Failed:', error);
+    console.log('🌐'.repeat(40) + '\n');
+    
     if (error instanceof Error) {
       throw error;
     }
@@ -106,11 +134,23 @@ const uploadFile = async <T = unknown>(
   const token = getAuthToken();
   const formData = new FormData();
   formData.append("billPdf", file);
+  
+  // Log upload
+  console.log('\n' + '📤'.repeat(40));
+  console.log(`📤 File Upload: POST ${endpoint}`);
+  console.log(`📄 File Name: ${file.name}`);
+  console.log(`📏 File Size: ${(file.size / 1024).toFixed(2)} KB`);
+  console.log(`🔗 Full URL: ${API_BASE_URL}${endpoint}`);
 
   const headers: HeadersInit = {};
   if (token) {
     (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+    console.log('🔐 Auth Token: Present');
+  } else {
+    console.log('🔓 Auth Token: None');
   }
+
+  const startTime = Date.now();
 
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -120,13 +160,25 @@ const uploadFile = async <T = unknown>(
     });
 
     const data = await response.json();
+    const duration = Date.now() - startTime;
+
+    console.log(`⏱️  Duration: ${duration}ms`);
+    console.log(`✅ Status: ${response.status} ${response.statusText}`);
+    console.log('📥 Response:', JSON.stringify(data, null, 2));
+    console.log('📤'.repeat(40) + '\n');
 
     if (!response.ok) {
+      console.error('❌ Upload Error:', data.message || 'Upload failed');
       throw new Error(data.message || "Upload failed");
     }
 
     return data as T;
   } catch (error) {
+    const duration = Date.now() - startTime;
+    console.log(`⏱️  Duration: ${duration}ms`);
+    console.error('❌ Upload Failed:', error);
+    console.log('📤'.repeat(40) + '\n');
+    
     if (error instanceof Error) {
       throw error;
     }

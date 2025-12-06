@@ -1,11 +1,75 @@
 .energy-bar-chart {
   width: 100%;
+  position: relative;
 }
 
+/* Custom Tooltip Styling */
+.custom-tooltip {
+  background: rgba(10, 14, 39, 0.98);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(0, 217, 255, 0.1);
+  animation: tooltipFadeIn 0.2s ease;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tooltip-label {
+  font-size: 11px;
+  color: #7a8ca0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.tooltip-value {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.tooltip-number {
+  font-size: 18px;
+  font-weight: 700;
+  color: #00d9ff;
+  letter-spacing: -0.02em;
+}
+
+.tooltip-unit {
+  font-size: 12px;
+  color: #7a8ca0;
+  font-weight: 500;
+}
+
+/* Bar hover effects */
 .energy-bar-chart .recharts-bar-rectangle {
-  transition: opacity 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .energy-bar-chart .recharts-bar-rectangle:hover {
-  opacity: 1 !important;
+  filter: brightness(1.2);
+}
+
+/* Grid styling */
+.energy-bar-chart .recharts-cartesian-grid-horizontal line {
+  stroke-opacity: 0.6;
+}
+
+/* Axis text styling */
+.energy-bar-chart .recharts-text {
+  font-family: 'Inter', sans-serif;
 }

@@ -3,12 +3,14 @@ import { AnimatedNavBar } from "../components/AnimatedNavBar";
 import SmartRecommendation from "../components/SmartRecommendation";
 import EnergyBarChart from "../components/EnergyBarChart";
 import { RelativeTimeCard } from "../components/ui/relative-time-card";
+import { AnimatedBackground } from "../components/AnimatedBackground";
 import { billsAPI, aiAPI } from "../utils/api";
 import type { BillRecord, AIResult } from "../types";
 import "./Dashboard.css";
 
 const Dashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(Date.now());
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const [billHistory, setBillHistory] = useState<BillRecord[]>([]);
   const [aiRecommendations, setAiRecommendations] = useState<AIResult | null>(
     null
@@ -96,12 +98,19 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard-new">
+      <AnimatedBackground />
       <AnimatedNavBar />
 
       <div className="dashboard-container">
         {/* Header - Always visible */}
         <div className="dashboard-header-new">
-          <h1>Overview</h1>
+          <div className="header-left">
+            <h1>Dashboard</h1>
+            <div className="status-indicator">
+              <div className="status-dot"></div>
+              <span className="status-text">Live</span>
+            </div>
+          </div>
           <div className="time-date-container">
             <RelativeTimeCard date={currentTime} side="bottom">
               <div className="time-display" style={{ cursor: "pointer" }}>
@@ -173,86 +182,242 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="bill-card-minimal empty-state fade-in">
-              <div className="empty-state-content">
-                <span className="empty-icon">📊</span>
-                <p className="empty-title">No bill data yet</p>
-                <p className="empty-subtitle">
-                  Add your first bill to start tracking
-                </p>
+            <div className="bill-card-minimal empty-state-card fade-in">
+              <div className="empty-state-content-enhanced">
+                <div className="empty-state-icon-container">
+                  <div className="empty-icon-circle">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 11H15M9 15H15M19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21Z" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                      />
+                      <path d="M3 9H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  </div>
+                </div>
+                
+                <div className="empty-state-text">
+                  <h3 className="empty-state-title">No Bills Yet</h3>
+                  <p className="empty-state-description">
+                    Start tracking your energy consumption by adding your first electricity bill.
+                    Get insights, predictions, and personalized recommendations.
+                  </p>
+                </div>
+
+                <div className="empty-state-features">
+                  <div className="feature-item">
+                    <div className="feature-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="3" width="7" height="18" rx="2" fill="currentColor" opacity="0.4"/>
+                        <rect x="13" y="9" width="7" height="12" rx="2" fill="currentColor"/>
+                      </svg>
+                    </div>
+                    <span>Track Consumption</span>
+                  </div>
+                  <div className="feature-item">
+                    <div className="feature-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L9 9H2L8 14L5 22L12 17L19 22L16 14L22 9H15L12 2Z" fill="currentColor"/>
+                      </svg>
+                    </div>
+                    <span>Get Insights</span>
+                  </div>
+                  <div className="feature-item">
+                    <div className="feature-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 17L9 11L13 15L21 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M17 7H21V11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <span>Save Money</span>
+                  </div>
+                </div>
+
+                <button className="cta-button" onClick={() => window.location.href = '/bills'}>
+                  <span>Add Your First Bill</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
               </div>
             </div>
           )}
         </div>
 
-        {/* Energy Consumption Section - Show demo charts for now */}
+        {/* Energy Consumption Section - Interactive & Creative */}
         <div
           className="energy-consumption-section fade-in"
           style={{ animationDelay: "0.1s" }}
         >
           <div className="section-header-row">
-            <h2>Total Energy Consumption</h2>
+            <h2>Energy Consumption Overview</h2>
+            <div className="view-controls">
+              <button className="view-btn active">12 Days</button>
+              <button className="view-btn">30 Days</button>
+            </div>
           </div>
 
           <div className="appliance-grid-clean">
-            {/* Lighting */}
-            <div className="appliance-item">
+            {/* Lighting - Interactive Card */}
+            <div 
+              className={`appliance-item interactive-card ${expandedCard === 'lighting' ? 'expanded' : ''}`}
+              onClick={() => setExpandedCard(expandedCard === 'lighting' ? null : 'lighting')}
+            >
               <div className="appliance-header-clean">
-                <span>Lighting ↑</span>
-                <button className="menu-btn">•••</button>
+                <div className="header-left-section">
+                  <div className="appliance-icon lighting-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <span className="appliance-name">Lighting</span>
+                    <span className="trend-badge increase">+8.2%</span>
+                  </div>
+                </div>
+                <button className="expand-btn" onClick={(e) => { e.stopPropagation(); setExpandedCard(expandedCard === 'lighting' ? null : 'lighting'); }}>
+                  {expandedCard === 'lighting' ? '−' : '+'}
+                </button>
               </div>
-              <div style={{ height: "140px", width: "100%" }}>
+              
+              <div className="chart-container" style={{ height: expandedCard === 'lighting' ? "180px" : "140px" }}>
                 <EnergyBarChart
                   data={lightingData}
                   labels={dayLabels}
-                  color="var(--accent-purple)"
-                  height={140}
+                  color="#00d9ff"
+                  height={expandedCard === 'lighting' ? 180 : 140}
                 />
               </div>
+              
               <div className="appliance-metric-clean">
-                <div className="metric-value">52-48</div>
-                <div className="metric-label-clean">kWh per month</div>
+                <div className="metric-row">
+                  <div className="metric-value">52</div>
+                  <div className="metric-change positive">+4 kWh</div>
+                </div>
+                <div className="metric-label-clean">Average daily consumption</div>
               </div>
+
+              {expandedCard === 'lighting' && (
+                <div className="expanded-details">
+                  <div className="detail-row">
+                    <span className="detail-label">Peak Hour:</span>
+                    <span className="detail-value">8:00 PM</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Monthly Total:</span>
+                    <span className="detail-value">1,560 kWh</span>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Refrigerator */}
-            <div className="appliance-item">
+            {/* Refrigerator - Interactive Card */}
+            <div 
+              className={`appliance-item interactive-card ${expandedCard === 'refrigerator' ? 'expanded' : ''}`}
+              onClick={() => setExpandedCard(expandedCard === 'refrigerator' ? null : 'refrigerator')}
+            >
               <div className="appliance-header-clean">
-                <span>Refrigerator ↓</span>
-                <button className="menu-btn">•••</button>
+                <div className="header-left-section">
+                  <div className="appliance-icon refrigerator-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="currentColor"/>
+                      <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <span className="appliance-name">Refrigerator</span>
+                    <span className="trend-badge decrease">-3.5%</span>
+                  </div>
+                </div>
+                <button className="expand-btn" onClick={(e) => { e.stopPropagation(); setExpandedCard(expandedCard === 'refrigerator' ? null : 'refrigerator'); }}>
+                  {expandedCard === 'refrigerator' ? '−' : '+'}
+                </button>
               </div>
-              <div style={{ height: "140px", width: "100%" }}>
+              
+              <div className="chart-container" style={{ height: expandedCard === 'refrigerator' ? "180px" : "140px" }}>
                 <EnergyBarChart
                   data={refrigeratorData}
                   labels={dayLabels}
-                  color="var(--accent-purple)"
-                  height={140}
+                  color="#a78bfa"
+                  height={expandedCard === 'refrigerator' ? 180 : 140}
                 />
               </div>
+              
               <div className="appliance-metric-clean">
-                <div className="metric-value">29-71</div>
-                <div className="metric-label-clean">kWh per month</div>
+                <div className="metric-row">
+                  <div className="metric-value">30</div>
+                  <div className="metric-change negative">-2 kWh</div>
+                </div>
+                <div className="metric-label-clean">Average daily consumption</div>
               </div>
+
+              {expandedCard === 'refrigerator' && (
+                <div className="expanded-details">
+                  <div className="detail-row">
+                    <span className="detail-label">Running Time:</span>
+                    <span className="detail-value">24/7</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Monthly Total:</span>
+                    <span className="detail-value">900 kWh</span>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Air Conditioner */}
-            <div className="appliance-item">
+            {/* Air Conditioner - Interactive Card */}
+            <div 
+              className={`appliance-item interactive-card ${expandedCard === 'ac' ? 'expanded' : ''}`}
+              onClick={() => setExpandedCard(expandedCard === 'ac' ? null : 'ac')}
+            >
               <div className="appliance-header-clean">
-                <span>Air Conditioner ↓</span>
-                <button className="menu-btn">•••</button>
+                <div className="header-left-section">
+                  <div className="appliance-icon ac-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2v20M5 12h14M8 5l4 4-4 4M16 5l-4 4 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <span className="appliance-name">Air Conditioner</span>
+                    <span className="trend-badge decrease">-5.1%</span>
+                  </div>
+                </div>
+                <button className="expand-btn" onClick={(e) => { e.stopPropagation(); setExpandedCard(expandedCard === 'ac' ? null : 'ac'); }}>
+                  {expandedCard === 'ac' ? '−' : '+'}
+                </button>
               </div>
-              <div style={{ height: "140px", width: "100%" }}>
+              
+              <div className="chart-container" style={{ height: expandedCard === 'ac' ? "180px" : "140px" }}>
                 <EnergyBarChart
                   data={acData}
                   labels={dayLabels}
-                  color="var(--accent-purple)"
-                  height={140}
+                  color="#00ff88"
+                  height={expandedCard === 'ac' ? 180 : 140}
                 />
               </div>
+              
               <div className="appliance-metric-clean">
-                <div className="metric-value">37-63</div>
-                <div className="metric-label-clean">kWh per month</div>
+                <div className="metric-row">
+                  <div className="metric-value">40</div>
+                  <div className="metric-change negative">-3 kWh</div>
+                </div>
+                <div className="metric-label-clean">Average daily consumption</div>
               </div>
+
+              {expandedCard === 'ac' && (
+                <div className="expanded-details">
+                  <div className="detail-row">
+                    <span className="detail-label">Peak Hour:</span>
+                    <span className="detail-value">2:00 PM</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Monthly Total:</span>
+                    <span className="detail-value">1,200 kWh</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
