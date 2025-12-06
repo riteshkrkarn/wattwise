@@ -8,13 +8,22 @@ import type { BillRecord, AIResult } from "../types";
 import "./Dashboard.css";
 
 const Dashboard: React.FC = () => {
-  const [pageLoadTime] = useState(Date.now());
+  const [currentTime, setCurrentTime] = useState(Date.now());
   const [billHistory, setBillHistory] = useState<BillRecord[]>([]);
   const [aiRecommendations, setAiRecommendations] = useState<AIResult | null>(
     null
   );
   const [loadingBills, setLoadingBills] = useState(true);
   const [loadingAI, setLoadingAI] = useState(false);
+
+  // Update time every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 60000); // Update every 60 seconds (1 minute)
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Fetch bill history on mount
   useEffect(() => {
@@ -94,7 +103,7 @@ const Dashboard: React.FC = () => {
         <div className="dashboard-header-new">
           <h1>Overview</h1>
           <div className="time-date-container">
-            <RelativeTimeCard date={pageLoadTime} side="bottom">
+            <RelativeTimeCard date={currentTime} side="bottom">
               <div className="time-display" style={{ cursor: "pointer" }}>
                 Date & Time
               </div>
