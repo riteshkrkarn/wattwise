@@ -5,12 +5,14 @@ import {
   logoutUser,
   updateUserDetails,
   getCurrentUser,
+  updatePassword,
 } from "../controllers/UserController";
 import { validate } from "../middlewares/validateResource";
 import {
   signupSchema,
   loginSchema,
   updateUserSchema,
+  updatePasswordSchema,
 } from "../schema/userSchema";
 import { verifyJWT } from "../middlewares/verifyJWT";
 
@@ -28,5 +30,11 @@ router.patch(
   updateUserDetails
 );
 router.get("/me", verifyJWT, getCurrentUser);
+router.patch(
+  "/update-password",
+  verifyJWT,
+  validate(updatePasswordSchema),
+  updatePassword
+);
 
 export default router;

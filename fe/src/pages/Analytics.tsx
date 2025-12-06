@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AnimatedNavBar } from "../components/AnimatedNavBar";
 import {
   BarChart,
@@ -12,6 +12,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { billsAPI } from "../utils/api";
+import type { BillRecord } from "../types";
+import toast from "react-hot-toast";
 import "./Analytics.css";
 
 interface CostBreakdownItem {
@@ -21,31 +24,109 @@ interface CostBreakdownItem {
   [key: string]: string | number;
 }
 
+interface ConsumptionDataPoint {
+  month: string;
+  consumption: number;
+}
+
 const Analytics: React.FC = () => {
   const [timeRange, setTimeRange] = useState("month");
+  const [loading, setLoading] = useState(true);
+  const [consumptionData, setConsumptionData] = useState<
+    ConsumptionDataPoint[]
+  >([]);
+  const [costBreakdown, setCostBreakdown] = useState<CostBreakdownItem[]>([]);
+  const [totalConsumption, setTotalConsumption] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
+  const [avgDaily, setAvgDaily] = useState(0);
 
-  // Sample data - replace with actual data from backend
-  const consumptionData = [
-    { month: "Jun", consumption: 420 },
-    { month: "Jul", consumption: 480 },
-    { month: "Aug", consumption: 510 },
-    { month: "Sep", consumption: 450 },
-    { month: "Oct", consumption: 430 },
-    { month: "Nov", consumption: 462 },
-  ];
+  const COLORS = ["#a78bfa", "#8b5cf6", "##c3aed", "#6d28d9"];
 
-  const costBreakdown: CostBreakdownItem[] = [
-    { name: "Air Conditioner", value: 1200, percentage: 37 },
-    { name: "Lighting", value: 840, percentage: 26 },
-    { name: "Refrigerator", value: 720, percentage: 22 },
-    { name: "Others", value: 480, percentage: 15 },
-  ];
+  useEffect(() => {
+    const fetchAnalyticsData = async () => {
+      try {
+        setLoading(true);
+        const historyRes = await billsAPI.getHistory();
+        const bills: BillRecord[] = historyRes.data || [];
 
-  const COLORS = ["#a78bfa", "#8b5cf6", "#7c3aed", "#6d28d9"];
+        if (bills.length === 0) {
+          // Set empty/default data
+          setConsumptionData([]);
+          setCostBreakdown([]);
+          setTotalConsumption(0);
+          setTotalCost(0);
+          setAvgDaily(0);
+          return;
+        }
 
-  const totalConsumption = 462; // kWh
-  const totalCost = 3240; // ₹
-  const avgDaily = 15.4; // kWh
+        // Process bills for consumption trend
+        const consumption = bills
+          .slice(0, 6)
+          .reverse()
+          .map((bill) => ({
+            month: new Date(bill.date || Date.now()).toLocaleDateString(
+              "en-US",
+              { month: "short" }
+            ),
+            consumption: bill.totalEstimatedUnits,
+          }));
+
+        // Calculate cost breakdown from latest bill
+        const latestBill = bills[0];
+        const breakdown = latestBill.breakdown || [];
+        const totalBreakdownCost = breakdown.reduce(
+          (sum, item) => sum + item.normalizedCost,
+          0
+        );
+
+        const costBreakdownData: CostBreakdownItem[] = breakdown.map(
+          (item) => ({
+            name: item.name,
+            value: Math.round(item.normalizedCost),
+            percentage:
+              totalBreakdownCost > 0
+                ? Math.round((item.normalizedCost / totalBreakdownCost) * 100)
+                : 0,
+          })
+        );
+
+        // Calculate statistics
+        const latestConsumption = latestBill.totalEstimatedUnits;
+        const latestCost = latestBill.totalEstimatedCost;
+        const daysInMonth = 30;
+        const dailyAvg = latestConsumption / daysInMonth;
+
+        setConsumptionData(consumption);
+        setCostBreakdown(costBreakdownData);
+        setTotalConsumption(Math.round(latestConsumption));
+        setTotalCost(Math.round(latestCost));
+        setAvgDaily(parseFloat(dailyAvg.toFixed(1)));
+      } catch {
+        toast.error("Failed to load analytics data");
+        // Set fallback data
+        setConsumptionData([]);
+        setCostBreakdown([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalyticsData();
+  }, [timeRange]);
+
+  if (loading) {
+    return (
+      <div className="analytics-page">
+        <AnimatedNavBar />
+        <div className="analytics-container">
+          <div className="loading-state">
+            <div className="spinner"></div>
+            <p>Loading analytics...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="analytics-page">

@@ -132,3 +132,32 @@ export const getCurrentUser = asyncHandler(
       .json(new ApiResponse(200, req.user, "User fetched successfully"));
   }
 );
+
+export const updatePassword = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      throw new ApiError(400, "currentPassword and newPassword is required");
+    }
+
+    const user = await User.findById(req.user?._id);
+
+    if (!user) {
+      throw new ApiError(404, "User does not exist");
+    }
+
+    const isPasswordValid = await user.isPasswordCorrect(currentPassword);
+
+    if (!isPasswordValid) {
+      throw new ApiError(401, "Invalid user credentials");
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, "Password updated successfully"));
+  }
+);

@@ -30,3 +30,10 @@ export const updateUserSchema = z.object({
     city: z.string().optional(),
   }),
 });
+
+export const updatePasswordSchema = z.object({
+  body: z.object({
+    currentPassword: z.string({ message: "Current password is required" }),
+    newPassword: z.string({ message: "New password is required" }),
+  }),
+});

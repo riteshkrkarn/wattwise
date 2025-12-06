@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import { AnimatedNavBar } from '../components/AnimatedNavBar';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import './Settings.css';
+import React, { useState } from "react";
+import { AnimatedNavBar } from "../components/AnimatedNavBar";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import "./Settings.css";
 
 const Settings: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
-  // Profile state
+
+  // Profile state - initialized directly from user context
   const [profileData, setProfileData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    city: user?.city || ''
+    name: user?.name || "",
+    email: user?.email || "",
+    city: user?.city || "",
   });
 
   // Electricity rate state
@@ -20,9 +20,9 @@ const Settings: React.FC = () => {
 
   // Password state
   const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -30,48 +30,48 @@ const Settings: React.FC = () => {
 
   const handleProfileUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Call API to update profile
-    console.log('Update profile:', profileData);
-    alert('Profile updated successfully!');
+    console.log("Update profile:", profileData);
+    alert("Profile updated successfully!");
   };
 
   const handleRateUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Save rate to user settings
-    console.log('Update rate:', electricityRate);
+    console.log("Update rate:", electricityRate);
     alert(`Electricity rate set to ₹${electricityRate}/kWh`);
   };
 
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('Passwords do not match!');
+      alert("Passwords do not match!");
       return;
     }
-    // TODO: Call API to change password
-    console.log('Change password');
-    alert('Password changed successfully!');
+    console.log("Change password");
+    alert("Password changed successfully!");
     setShowPasswordModal(false);
-    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    setPasswordData({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
   };
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   const handleDeleteAccount = () => {
-    // TODO: Call API to delete account
-    console.log('Delete account');
-    alert('Account deleted');
+    console.log("Delete account");
+    alert("Account deleted");
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   return (
     <div className="settings-page">
       <AnimatedNavBar />
-      
+
       <div className="settings-container">
         <h1>Settings</h1>
 
@@ -86,7 +86,9 @@ const Settings: React.FC = () => {
                   type="text"
                   id="name"
                   value={profileData.name}
-                  onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, name: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -96,7 +98,9 @@ const Settings: React.FC = () => {
                 <select
                   id="city"
                   value={profileData.city}
-                  onChange={(e) => setProfileData({ ...profileData, city: e.target.value })}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, city: e.target.value })
+                  }
                   required
                 >
                   <option value="">Select city</option>
@@ -117,13 +121,17 @@ const Settings: React.FC = () => {
                   type="email"
                   id="email"
                   value={profileData.email}
-                  onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, email: e.target.value })
+                  }
                   required
                 />
               </div>
             </div>
 
-            <button type="submit" className="btn-primary">Update Profile</button>
+            <button type="submit" className="btn-primary">
+              Update Profile
+            </button>
           </form>
         </div>
 
@@ -143,10 +151,14 @@ const Settings: React.FC = () => {
                 step="0.1"
                 required
               />
-              <small className="form-hint">This affects all cost calculations in the dashboard</small>
+              <small className="form-hint">
+                This affects all cost calculations in the dashboard
+              </small>
             </div>
 
-            <button type="submit" className="btn-primary">Save Rate</button>
+            <button type="submit" className="btn-primary">
+              Save Rate
+            </button>
           </form>
         </div>
 
@@ -154,20 +166,17 @@ const Settings: React.FC = () => {
         <div className="settings-section">
           <h2>Account</h2>
           <div className="account-actions">
-            <button 
-              className="btn-secondary" 
+            <button
+              className="btn-secondary"
               onClick={() => setShowPasswordModal(true)}
             >
               Change Password
             </button>
-            <button 
-              className="btn-secondary" 
-              onClick={handleLogout}
-            >
+            <button className="btn-secondary" onClick={handleLogout}>
               Logout
             </button>
-            <button 
-              className="btn-danger" 
+            <button
+              className="btn-danger"
               onClick={() => setShowDeleteModal(true)}
             >
               Delete Account
@@ -178,7 +187,10 @@ const Settings: React.FC = () => {
 
       {/* Password Change Modal */}
       {showPasswordModal && (
-        <div className="modal-overlay" onClick={() => setShowPasswordModal(false)}>
+        <div
+          className="modal-overlay"
+          onClick={() => setShowPasswordModal(false)}
+        >
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Change Password</h3>
             <form onSubmit={handlePasswordChange}>
@@ -188,7 +200,12 @@ const Settings: React.FC = () => {
                   type="password"
                   id="currentPassword"
                   value={passwordData.currentPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      currentPassword: e.target.value,
+                    })
+                  }
                   required
                 />
               </div>
@@ -199,7 +216,12 @@ const Settings: React.FC = () => {
                   type="password"
                   id="newPassword"
                   value={passwordData.newPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      newPassword: e.target.value,
+                    })
+                  }
                   required
                   minLength={6}
                 />
@@ -211,14 +233,23 @@ const Settings: React.FC = () => {
                   type="password"
                   id="confirmPassword"
                   value={passwordData.confirmPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
                   required
                   minLength={6}
                 />
               </div>
 
               <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={() => setShowPasswordModal(false)}>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setShowPasswordModal(false)}
+                >
                   Cancel
                 </button>
                 <button type="submit" className="btn-primary">
@@ -232,15 +263,22 @@ const Settings: React.FC = () => {
 
       {/* Delete Account Modal */}
       {showDeleteModal && (
-        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
+        <div
+          className="modal-overlay"
+          onClick={() => setShowDeleteModal(false)}
+        >
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Delete Account</h3>
             <p className="warning-text">
-              ⚠️ This action is permanent and cannot be undone. All your data will be deleted.
+              ⚠️ This action is permanent and cannot be undone. All your data
+              will be deleted.
             </p>
             <p>Are you sure you want to delete your account?</p>
             <div className="modal-actions">
-              <button className="btn-secondary" onClick={() => setShowDeleteModal(false)}>
+              <button
+                className="btn-secondary"
+                onClick={() => setShowDeleteModal(false)}
+              >
                 Cancel
               </button>
               <button className="btn-danger" onClick={handleDeleteAccount}>
