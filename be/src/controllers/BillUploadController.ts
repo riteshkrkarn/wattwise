@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { spawn } from "child_process";
 import path from "path";
+import fs from "fs";
 import { asyncHandler } from "../utils/AsyncHandler";
 import { ApiResponse } from "../utils/ApiResponse";
 import { ApiError } from "../utils/ApiError";
@@ -11,6 +12,12 @@ const pdfParse = require("pdf-parse");
 
 export class BillUploadController {
   static uploadAndParse = asyncHandler(async (req: Request, res: Response) => {
+    console.log("\n" + "🚨".repeat(40));
+    console.log("🚨 BILL UPLOAD ENDPOINT HIT!");
+    console.log("🚨 File present:", !!req.file);
+    console.log("🚨 User:", req.user);
+    console.log("🚨".repeat(40) + "\n");
+
     // Check if file was uploaded
     if (!req.file) {
       throw new ApiError(400, "No file uploaded. Please upload a PDF file.");
@@ -75,6 +82,25 @@ export class BillUploadController {
         "../../venv/Scripts/python.exe"
       );
 
+      // Verify Python executable exists
+      if (!fs.existsSync(pythonExecutable)) {
+        console.error(
+          `[BillUploadController] ❌ Python executable not found: ${pythonExecutable}`
+        );
+        throw new ApiError(
+          500,
+          "Python environment not configured. Please ensure virtual environment is set up."
+        );
+      }
+
+      // Verify Python script exists
+      if (!fs.existsSync(pythonScriptPath)) {
+        console.error(
+          `[BillUploadController] ❌ Python script not found: ${pythonScriptPath}`
+        );
+        throw new ApiError(500, "Bill parser script not found.");
+      }
+
       console.log(
         `[BillUploadController] Python script path: ${pythonScriptPath}`
       );
@@ -86,10 +112,26 @@ export class BillUploadController {
         `[BillUploadController] Mode: ${isImageBased ? "VISION" : "TEXT"}`
       );
 
+      console.log(`[BillUploadController] Spawning Python agent process...`);
       const pythonProcess = spawn(pythonExecutable, [pythonScriptPath]);
 
       let outputData = "";
       let errorData = "";
+
+      // Handle process errors
+      pythonProcess.on("error", (err) => {
+        console.error(
+          `[BillUploadController] ❌ Failed to spawn Python process:`,
+          err
+        );
+        if (!res.headersSent) {
+          const errorResponse = new ApiError(
+            500,
+            `Failed to start bill parser: ${err.message}`
+          );
+          res.status(errorResponse.statusCode).json(errorResponse);
+        }
+      });
 
       // Prepare payload - include base64 for image-based PDFs
       const payload: {
@@ -103,41 +145,84 @@ export class BillUploadController {
       if (isImageBased) {
         payload.pdfBase64 = pdfBuffer.toString("base64");
         console.log(
-          `[BillUploadController] Sending base64 data (${payload.pdfBase64.length} chars)`
+          `[BillUploadController] Prepared payload with BASE64 data (${payload.pdfBase64.length} chars)`
         );
       } else {
         payload.pdfText = pdfText;
         console.log(
-          `[BillUploadController] Sending text data (${pdfText.length} chars)`
+          `[BillUploadController] Prepared payload with TEXT data (${pdfText.length} chars)`
         );
       }
 
-      pythonProcess.stdin.write(JSON.stringify(payload));
-      pythonProcess.stdin.end();
-      console.log(`[BillUploadController] Data sent to Python agent`);
+      // Handle stream errors
+      pythonProcess.stdin.on("error", (err) => {
+        console.error(`[BillUploadController] ❌ Stdin Error:`, err);
+      });
+
+      try {
+        pythonProcess.stdin.write(JSON.stringify(payload));
+        pythonProcess.stdin.end();
+        console.log(
+          `[BillUploadController] Payload written to Python stdin. Waiting for response...`
+        );
+      } catch (writeErr) {
+        console.error(
+          `[BillUploadController] ❌ Failed to write to stdin:`,
+          writeErr
+        );
+        throw new ApiError(500, "Failed to communicate with analysis agent");
+      }
 
       pythonProcess.stdout.on("data", (data) => {
-        outputData += data.toString();
+        const chunk = data.toString();
+        // console.log(`[BillUploadController] Chunk received: ${chunk.length} chars`);
+        outputData += chunk;
       });
 
       pythonProcess.stderr.on("data", (data) => {
-        errorData += data.toString();
-        console.log(`[BillUploadController] Agent log: ${data.toString()}`);
+        const errChunk = data.toString();
+        errorData += errChunk;
+        console.log(`[BillUploadController] ⚠️ Agent Log/Error: ${errChunk}`);
       });
 
       pythonProcess.on("close", (code) => {
         console.log(
           `[BillUploadController] Python agent exited with code: ${code}`
         );
-        console.log(`[BillUploadController] Agent stdout: ${outputData}`);
+
+        console.log(
+          `[BillUploadController] Full Output Data Length: ${outputData.length}`
+        );
+        // Log first 200 chars to see what we got
+        console.log(
+          `[BillUploadController] Output Preview: ${outputData.substring(
+            0,
+            200
+          )}...`
+        );
+
         if (errorData) {
-          console.log(`[BillUploadController] Agent stderr: ${errorData}`);
+          console.log(`[BillUploadController] Full Stderr Data: ${errorData}`);
         }
+
+        // Guard against multiple responses
+        if (res.headersSent) {
+          console.log(
+            `[BillUploadController] ⚠️ Response already sent, skipping.`
+          );
+          return;
+        }
+
         if (code !== 0) {
+          console.error(
+            `[BillUploadController] ❌ Agent failed with non-zero exit code.`
+          );
           AILogger.error("Bill Parser Agent failed", errorData);
-          return res
-            .status(500)
-            .json(new ApiError(500, "Failed to parse bill data"));
+          const errorResponse = new ApiError(
+            500,
+            "Failed to parse bill data - Agent Error"
+          );
+          return res.status(errorResponse.statusCode).json(errorResponse);
         }
 
         try {
@@ -145,7 +230,8 @@ export class BillUploadController {
 
           if (result.error) {
             AILogger.error("Bill Parser Agent reported error", result.error);
-            return res.status(500).json(new ApiError(500, result.error));
+            const errorResponse = new ApiError(500, result.error);
+            return res.status(errorResponse.statusCode).json(errorResponse);
           }
 
           console.log(
@@ -156,14 +242,27 @@ export class BillUploadController {
           console.log(
             `[BillUploadController] ========== PDF UPLOAD SUCCESS ==========`
           );
-          res
-            .status(200)
-            .json(new ApiResponse(200, result, "Bill parsed successfully"));
+          const successResponse = new ApiResponse(
+            200,
+            result,
+            "Bill parsed successfully"
+          );
+          res.status(200).json(successResponse);
         } catch (err: any) {
+          console.error(
+            `[BillUploadController] ❌ JSON Parse Error:`,
+            err.message
+          );
+          console.error(
+            `[BillUploadController] Raw output that failed to parse:`,
+            outputData
+          );
           AILogger.error("Failed to parse agent output", err);
-          res
-            .status(500)
-            .json(new ApiError(500, "Invalid response from bill parser"));
+          const errorResponse = new ApiError(
+            500,
+            "Invalid response from bill parser"
+          );
+          res.status(errorResponse.statusCode).json(errorResponse);
         }
       });
     } catch (error: any) {

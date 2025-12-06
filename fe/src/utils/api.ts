@@ -18,11 +18,7 @@ import type {
   OperationResponse,
 } from "../types";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-interface RequestOptions extends RequestInit {
-  headers?: HeadersInit;
-}
+import axios from "axios";
 
 // Re-export types for backward compatibility
 export type {
@@ -45,6 +41,8 @@ export type {
   OperationResponse,
 };
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 // Auth Helpers
 const getAuthToken = (): string | null => {
   if (typeof window !== "undefined") {
@@ -61,160 +59,51 @@ export const removeAuthToken = (): void => {
   localStorage.removeItem("authToken");
 };
 
-// Base API Request
-const apiRequest = async <T = unknown>(
-  endpoint: string,
-  options: RequestOptions = {}
-): Promise<T> => {
-  const token = getAuthToken();
-  const fullUrl = `${API_BASE_URL}${endpoint}`;
-  const method = options.method || 'GET';
-  
-  // Log request
-  console.log('\n' + '🌐'.repeat(40));
-  console.log(`📡 API Request: ${method} ${endpoint}`);
-  console.log(`🔗 Full URL: ${fullUrl}`);
-  
-  const headers: HeadersInit = {
+// Helper to get headers with auth token
+const getHeaders = (includeAuth = true) => {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...options.headers,
   };
 
-  if (token) {
-    (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
-    console.log('🔐 Auth Token: Present');
-  } else {
-    console.log('🔓 Auth Token: None');
-  }
-  
-  if (options.body) {
-    console.log('📦 Request Body:', options.body);
-  }
-
-  const startTime = Date.now();
-  
-  try {
-    const response = await fetch(fullUrl, {
-      ...options,
-      headers,
-    });
-
-    const data = await response.json();
-    const duration = Date.now() - startTime;
-
-    console.log(`⏱️  Duration: ${duration}ms`);
-    console.log(`✅ Status: ${response.status} ${response.statusText}`);
-    console.log('📥 Response:', JSON.stringify(data, null, 2));
-    console.log('🌐'.repeat(40) + '\n');
-
-    if (!response.ok) {
-      console.error('❌ API Error:', data.message || 'Something went wrong');
-      throw new Error(data.message || "Something went wrong");
+  if (includeAuth) {
+    const token = getAuthToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
-
-    return data as T;
-  } catch (error) {
-    const duration = Date.now() - startTime;
-    console.log(`⏱️  Duration: ${duration}ms`);
-    console.error('❌ API Request Failed:', error);
-    console.log('🌐'.repeat(40) + '\n');
-    
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error("Network error");
   }
+
+  return headers;
 };
 
-// File Upload Helper
-const uploadFile = async <T = unknown>(
-  endpoint: string,
-  file: File
-): Promise<T> => {
-  const token = getAuthToken();
-  const formData = new FormData();
-  formData.append("billPdf", file);
-  
-  // Log upload
-  console.log('\n' + '📤'.repeat(40));
-  console.log(`📤 File Upload: POST ${endpoint}`);
-  console.log(`📄 File Name: ${file.name}`);
-  console.log(`📏 File Size: ${(file.size / 1024).toFixed(2)} KB`);
-  console.log(`🔗 Full URL: ${API_BASE_URL}${endpoint}`);
-
-  const headers: HeadersInit = {};
-  if (token) {
-    (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
-    console.log('🔐 Auth Token: Present');
-  } else {
-    console.log('🔓 Auth Token: None');
-  }
-
-  const startTime = Date.now();
-
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: "POST",
-      headers,
-      body: formData,
-    });
-
-    const data = await response.json();
-    const duration = Date.now() - startTime;
-
-    console.log(`⏱️  Duration: ${duration}ms`);
-    console.log(`✅ Status: ${response.status} ${response.statusText}`);
-    console.log('📥 Response:', JSON.stringify(data, null, 2));
-    console.log('📤'.repeat(40) + '\n');
-
-    if (!response.ok) {
-      console.error('❌ Upload Error:', data.message || 'Upload failed');
-      throw new Error(data.message || "Upload failed");
-    }
-
-    return data as T;
-  } catch (error) {
-    const duration = Date.now() - startTime;
-    console.log(`⏱️  Duration: ${duration}ms`);
-    console.error('❌ Upload Failed:', error);
-    console.log('📤'.repeat(40) + '\n');
-    
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error("Network error");
-  }
-};
-
-// API Client
+// Simple API wrapper
 export const api = {
-  get: <T = unknown>(endpoint: string, options?: RequestOptions) =>
-    apiRequest<T>(endpoint, { ...options, method: "GET" }),
+  get: async <T = unknown>(endpoint: string) => {
+    const response = await axios.get<T>(`${API_BASE_URL}${endpoint}`, {
+      headers: getHeaders(),
+    });
+    return response.data;
+  },
 
-  post: <T = unknown>(
-    endpoint: string,
-    data?: unknown,
-    options?: RequestOptions
-  ) =>
-    apiRequest<T>(endpoint, {
-      ...options,
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
+  post: async <T = unknown>(endpoint: string, data?: unknown) => {
+    const response = await axios.post<T>(`${API_BASE_URL}${endpoint}`, data, {
+      headers: getHeaders(),
+    });
+    return response.data;
+  },
 
-  patch: <T = unknown>(
-    endpoint: string,
-    data?: unknown,
-    options?: RequestOptions
-  ) =>
-    apiRequest<T>(endpoint, {
-      ...options,
-      method: "PATCH",
-      body: JSON.stringify(data),
-    }),
+  patch: async <T = unknown>(endpoint: string, data?: unknown) => {
+    const response = await axios.patch<T>(`${API_BASE_URL}${endpoint}`, data, {
+      headers: getHeaders(),
+    });
+    return response.data;
+  },
 
-  delete: <T = unknown>(endpoint: string, options?: RequestOptions) =>
-    apiRequest<T>(endpoint, { ...options, method: "DELETE" }),
+  delete: async <T = unknown>(endpoint: string) => {
+    const response = await axios.delete<T>(`${API_BASE_URL}${endpoint}`, {
+      headers: getHeaders(),
+    });
+    return response.data;
+  },
 };
 
 // Auth API
@@ -270,8 +159,27 @@ export const billsAPI = {
 
   getHistory: () => api.get<ApiResponse<BillRecord[]>>("/api/v1/bills/history"),
 
-  uploadPdf: (file: File) =>
-    uploadFile<ApiResponse<ParsedBillData>>("/api/v1/bills/upload", file),
+  uploadPdf: async (file: File) => {
+    const formData = new FormData();
+    formData.append("billPdf", file);
+
+    const token = getAuthToken();
+    const headers: Record<string, string> = {
+      "Content-Type": "multipart/form-data",
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await axios.post<ApiResponse<ParsedBillData>>(
+      `${API_BASE_URL}/api/v1/bills/upload`,
+      formData,
+      { headers }
+    );
+
+    return response.data;
+  },
 };
 
 // Appliances API

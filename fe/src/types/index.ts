@@ -131,7 +131,7 @@ export interface UploadedBill {
   fileName: string;
   fileSize: number;
   uploadDate: Date;
-  status: "uploading" | "processing" | "completed" | "error";
+  status: "uploading" | "processing" | "completed" | "error" | "failed";
   extractedData?: BillData;
 }
 

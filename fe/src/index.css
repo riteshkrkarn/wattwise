@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 /* Base Theme (Light Mode Default) */
 :root {
   /* Default to Light Mode Variables if no data-theme is present or for shared vars */
@@ -105,7 +106,6 @@
 }
 
 /* Import modern font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
@@ -113,7 +113,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;

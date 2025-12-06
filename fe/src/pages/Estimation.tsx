@@ -192,9 +192,27 @@ const Estimation: React.FC = () => {
               {isHighDiscrepancy
                 ? `Your bill is ${Math.round(
                     (comparison.discrepancyRatio - 1) * 100
-                  )}% higher than estimated! Use our suggestions to reduce it.`
+                  )}% higher than estimated! This suggests some appliances might be missing or usage is higher.`
                 : "Your usage matches your appliances well. Great job!"}
             </p>
+            {isHighDiscrepancy && (
+              <button
+                className="update-appliances-btn"
+                onClick={() => navigate("/appliances", { state: { billData } })}
+                style={{
+                  marginTop: "12px",
+                  padding: "8px 16px",
+                  background: "rgba(255,255,255,0.2)",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  fontSize: "0.9rem",
+                  color: "inherit",
+                }}
+              >
+                Refine Appliances
+              </button>
+            )}
           </div>
         </div>
 

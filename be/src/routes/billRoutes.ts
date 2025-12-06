@@ -43,9 +43,45 @@ router.get("/history", verifyJWT, BillController.getHistory);
 // PDF Upload Route (Protected)
 router.post(
   "/upload",
+  (req, res, next) => {
+    console.log("🎯 /upload route hit - BEFORE verifyJWT");
+    next();
+  },
   verifyJWT,
+  (req, res, next) => {
+    console.log("🎯 /upload route - AFTER verifyJWT, BEFORE multer");
+    next();
+  },
   upload.single("billPdf"),
+  (req, res, next) => {
+    console.log("🎯 /upload route - AFTER multer, BEFORE controller");
+    next();
+  },
   BillUploadController.uploadAndParse
 );
+
+// Multer error handler for this route
+router.use((error: any, req: any, res: any, next: any) => {
+  console.log("🚨 Multer/Route Error Handler:", error.message);
+  if (error instanceof multer.MulterError) {
+    if (error.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({
+        statusCode: 400,
+        data: null,
+        success: false,
+        message: "File size too large. Maximum size is 10MB.",
+        errors: [],
+      });
+    }
+    return res.status(400).json({
+      statusCode: 400,
+      data: null,
+      success: false,
+      message: error.message,
+      errors: [],
+    });
+  }
+  next(error);
+});
 
 export default router;

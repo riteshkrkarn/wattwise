@@ -321,7 +321,7 @@ const Dashboard: React.FC = () => {
           <div className="section-header-row">
             <h2>Energy Consumption Overview</h2>
             <div className="view-controls">
-              <button className="view-btn active">12 Days</button>
+              <button className="view-btn active">14 Days</button>
               <button className="view-btn">30 Days</button>
             </div>
           </div>

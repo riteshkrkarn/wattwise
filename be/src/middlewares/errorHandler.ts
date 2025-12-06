@@ -7,6 +7,14 @@ const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
+  console.log("\n" + "❌".repeat(40));
+  console.log("❌ ERROR HANDLER CAUGHT AN ERROR!");
+  console.log("❌ Error Type:", err.constructor.name);
+  console.log("❌ Error Message:", err.message);
+  console.log("❌ Status Code:", err.statusCode);
+  console.log("❌ Stack:", err.stack);
+  console.log("❌".repeat(40) + "\n");
+
   let error = err;
 
   if (!(error instanceof ApiError)) {
