@@ -11,7 +11,7 @@ import {
   Sun,
 } from "lucide-react";
 import Button from "../components/Button";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "../context/ThemeDefinition";
 import "./LandingPage.css";
 import "../components/Footer.css";
 import Footer from "../components/Footer";
