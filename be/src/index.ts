@@ -20,17 +20,49 @@ app.use(express.json()); // Built-in body-parser
 app.use(express.urlencoded({ extended: true })); // Handle URL-encoded data
 app.use(require("cookie-parser")()); // Parse cookies
 
-// Global Request Logger
+// Enhanced Global Request Logger
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  const timestamp = new Date().toISOString();
+  console.log('\n' + '='.repeat(80));
+  console.log(`🔵 [${timestamp}] ${req.method} ${req.url}`);
+  
+  if (Object.keys(req.params).length > 0) {
+    console.log('📋 Params:', JSON.stringify(req.params, null, 2));
+  }
+  
+  if (Object.keys(req.query).length > 0) {
+    console.log('🔍 Query:', JSON.stringify(req.query, null, 2));
+  }
+  
+  if (req.body && Object.keys(req.body).length > 0) {
+    console.log('📦 Body:', JSON.stringify(req.body, null, 2));
+  }
+  
+  // Log response
+  const originalSend = res.send;
+  res.send = function (data) {
+    console.log(`✅ Response Status: ${res.statusCode}`);
+    console.log('='.repeat(80) + '\n');
+    return originalSend.call(this, data);
+  };
+  
   next();
 });
 
-// Routes
+// Routes - Log when routes are registered
+console.log('\n📍 Registering routes...');
 app.use("/api/v1/bills", billRoutes);
+console.log('   ✓ Bills routes registered at /api/v1/bills');
+
 app.use("/api/v1/appliances", applianceRoutes);
+console.log('   ✓ Appliances routes registered at /api/v1/appliances');
+
 app.use("/api/v1/ai", aiRoutes);
+console.log('   ✓ AI routes registered at /api/v1/ai');
+
 app.use("/api/v1/users", userRoutes);
+console.log('   ✓ User routes registered at /api/v1/users');
+console.log('📍 All routes registered successfully\n');
 
 app.get("/", (req, res) => {
   res.send("Byte Hackathon Backend is running!");

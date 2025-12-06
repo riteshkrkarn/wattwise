@@ -3,7 +3,9 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
+import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -18,6 +20,23 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import Estimation from "./pages/Estimation";
 import "./App.css";
+
+// Route Logger Component
+function RouteLogger() {
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log('\n' + '🎯'.repeat(40));
+    console.log(`🚀 Route Changed: ${location.pathname}`);
+    console.log(`📍 Full Path: ${location.pathname}${location.search}${location.hash}`);
+    if (location.state) {
+      console.log('📦 State:', location.state);
+    }
+    console.log('🎯'.repeat(40) + '\n');
+  }, [location]);
+
+  return null;
+}
 
 function App() {
   return (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell, Tooltip } from 'recharts';
 import './EnergyBarChart.css';
 
@@ -15,63 +15,105 @@ const EnergyBarChart: React.FC<EnergyBarChartProps> = ({
   color = '#a78bfa',
   height = 140
 }) => {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
   // Transform data for recharts
   const chartData = data.map((value, index) => ({
     name: labels?.[index] || `${index + 1}`,
     value: value,
   }));
 
+  // Custom tooltip
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="custom-tooltip">
+          <div className="tooltip-label">{payload[0].payload.name}</div>
+          <div className="tooltip-value">
+            <span className="tooltip-number">{payload[0].value}</span>
+            <span className="tooltip-unit">kWh</span>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="energy-bar-chart" style={{ height: `${height}px` }}>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+        <BarChart 
+          data={chartData} 
+          margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
+          onMouseMove={(state) => {
+            if (state.isTooltipActive) {
+              setActiveIndex(state.activeTooltipIndex ?? null);
+            } else {
+              setActiveIndex(null);
+            }
+          }}
+          onMouseLeave={() => setActiveIndex(null)}
+        >
+          {/* Add gradient definitions */}
+          <defs>
+            <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity={0.9} />
+              <stop offset="100%" stopColor={color} stopOpacity={0.4} />
+            </linearGradient>
+            <linearGradient id="barGradientActive" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity={1} />
+              <stop offset="100%" stopColor={color} stopOpacity={0.6} />
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          
           <CartesianGrid 
-            strokeDasharray="3 3" 
-            stroke="rgba(122, 140, 160, 0.1)"
+            strokeDasharray="0" 
+            stroke="rgba(255, 255, 255, 0.05)"
             vertical={false}
           />
+          
           <XAxis 
             dataKey="name" 
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#7a8ca0', fontSize: 11 }}
+            tick={{ fill: '#7a8ca0', fontSize: 11, fontWeight: 500 }}
             hide={!labels}
           />
+          
           <YAxis 
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#7a8ca0', fontSize: 11 }}
+            tick={{ fill: '#7a8ca0', fontSize: 11, fontWeight: 500 }}
             tickCount={5}
             domain={[0, 'auto']}
           />
-          <Tooltip 
-            cursor={{ fill: 'rgba(167, 139, 250, 0.1)' }}
-            contentStyle={{
-              backgroundColor: 'rgba(26, 31, 58, 0.95)',
-              border: '1px solid rgba(167, 139, 250, 0.3)',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-            }}
-            labelStyle={{ 
-              color: '#b8c5d6',
-              fontWeight: 600,
-              marginBottom: '4px'
-            }}
-            itemStyle={{ 
-              color: '#a78bfa',
-              fontWeight: 600
-            }}
-            formatter={(value: number) => [`${value} kWh`, 'Energy']}
-          />
+          
+          <Tooltip content={<CustomTooltip />} cursor={false} />
+          
           <Bar 
             dataKey="value" 
-            radius={[4, 4, 0, 0]}
-            animationDuration={800}
+            radius={[6, 6, 0, 0]}
+            animationDuration={1000}
             animationEasing="ease-out"
+            maxBarSize={40}
           >
             {chartData.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={color} opacity={0.9} />
+              <Cell 
+                key={`cell-${index}`} 
+                fill={activeIndex === index ? "url(#barGradientActive)" : "url(#barGradient)"}
+                filter={activeIndex === index ? "url(#glow)" : ""}
+                style={{
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
+                }}
+              />
             ))}
           </Bar>
         </BarChart>

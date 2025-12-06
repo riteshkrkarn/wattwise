@@ -1,390 +1,482 @@
+/* Bills Page - Modern Professional Design */
 .bills-page {
   min-height: 100vh;
   background: var(--bg-primary);
+  position: relative;
+  overflow-x: hidden;
 }
 
 .bills-container {
-  max-width: 1400px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: var(--spacing-2xl);
+  padding: clamp(2rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2rem);
+  position: relative;
+  z-index: 1;
 }
 
+/* ===============================================
+   HEADER
+   =============================================== */
 .bills-header {
-  margin-bottom: var(--spacing-3xl);
+  text-align: center;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
 }
 
 .bills-header h1 {
-  font-size: 2rem;
-  font-weight: 600;
-  margin: 0 0 var(--spacing-sm) 0;
-  letter-spacing: -0.025em;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.04em;
 }
 
 .bills-subtitle {
-  font-size: 1rem;
+  font-size: clamp(1rem, 2vw, 1.125rem);
   color: var(--text-secondary);
-  margin: 0;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
-/* Upload Area */
+/* ===============================================
+   UPLOAD AREA - Modern Design
+   =============================================== */
 .bill-upload-area {
-  background: var(--bg-card);
-  border: 2px dashed var(--border-color);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-3xl);
-  text-align: center;
-  transition: all var(--transition-base);
-  cursor: pointer;
-  margin-bottom: var(--spacing-3xl);
+  background: rgba(255, 255, 255, 0.02);
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: clamp(3rem, 6vw, 5rem) clamp(2rem, 4vw, 3rem);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.bill-upload-area:hover {
-  border-color: var(--accent-purple);
-  background: rgba(167, 139, 250, 0.03);
+.bill-upload-area::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    rgba(0, 217, 255, 0.5) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
+.bill-upload-area:hover,
 .bill-upload-area.dragging {
-  border-color: var(--accent-purple);
-  background: rgba(167, 139, 250, 0.08);
-  transform: scale(1.01);
+  background: rgba(0, 217, 255, 0.05);
+  border-color: rgba(0, 217, 255, 0.4);
+  border-style: solid;
+  box-shadow: 
+    0 0 40px rgba(0, 217, 255, 0.15),
+    inset 0 0 40px rgba(0, 217, 255, 0.05);
 }
 
-.upload-icon {
-  font-size: 3.5rem;
-  margin-bottom: var(--spacing-lg);
-  opacity: 0.8;
+.bill-upload-area:hover::before,
+.bill-upload-area.dragging::before {
+  opacity: 1;
+}
+
+/* Upload Icon */
+.upload-icon-container {
+  margin-bottom: 2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.upload-icon-container svg {
+  color: #00d9ff;
+  filter: drop-shadow(0 0 12px rgba(0, 217, 255, 0.4));
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Upload Content */
+.upload-content {
+  text-align: center;
+  margin-bottom: 2.5rem;
 }
 
 .upload-title {
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 var(--spacing-sm) 0;
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.02em;
 }
 
 .upload-description {
-  font-size: 0.9375rem;
+  font-size: clamp(0.9375rem, 1.5vw, 1rem);
   color: var(--text-secondary);
-  margin: 0 0 var(--spacing-xs) 0;
+  margin: 0 0 0.5rem  0;
+  line-height: 1.5;
 }
 
 .upload-formats {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--text-muted);
-  margin: 0 0 var(--spacing-xl) 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
+/* Upload Button */
 .file-input-hidden {
   display: none;
 }
 
 .upload-button {
-  display: inline-block;
-  padding: var(--spacing-md) var(--spacing-2xl);
-  background: var(--accent-purple);
-  color: white;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 0.9375rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #00d9ff 0%, #00b8d4 100%);
+  border: none;
+  border-radius: 12px;
+  color: #0a0e27;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all var(--transition-base);
-}
-
-.upload-button:hover {
-  background: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(167, 139, 250, 0.3);
-}
-
-/* Bills List */
-.bills-list {
-  margin-top: var(--spacing-3xl);
-}
-
-.list-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0 0 var(--spacing-xl) 0;
-  letter-spacing: -0.02em;
-}
-
-.empty-state {
-  text-align: center;
-  padding: var(--spacing-3xl);
-}
-
-.empty-icon {
-  font-size: 4rem;
-  opacity: 0.3;
-  margin-bottom: var(--spacing-lg);
-}
-
-.empty-text {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin: 0 0 var(--spacing-sm) 0;
-}
-
-.empty-subtext {
-  font-size: 0.9375rem;
-  color: var(--text-muted);
-  margin: 0;
-}
-
-/* Bills Grid */
-.bills-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: var(--spacing-xl);
-}
-
-.bill-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  transition: all var(--transition-base);
-}
-
-.bill-card:hover {
-  border-color: var(--accent-purple);
-  box-shadow: 0 4px 12px rgba(167, 139, 250, 0.1);
-}
-
-.bill-card.status-completed {
-  border-left: 3px solid #44ff44;
-}
-
-.bill-card.status-processing {
-  border-left: 3px solid var(--accent-purple);
-}
-
-.bill-card.status-error {
-  border-left: 3px solid #ff4444;
-}
-
-.bill-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: var(--spacing-lg);
-}
-
-.bill-file-info {
-  display: flex;
-  gap: var(--spacing-md);
-  align-items: flex-start;
-}
-
-.file-icon {
-  width: 40px;
-  height: 40px;
-  background: rgba(167, 139, 250, 0.1);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  flex-shrink: 0;
-}
-
-.bill-file-name {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 0.25rem 0;
-  word-break: break-word;
-}
-
-.bill-file-meta {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin: 0;
-}
-
-.bill-status-badge {
-  padding: var(--spacing-xs) var(--spacing-md);
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.bill-status-badge.status-uploading {
-  background: rgba(167, 139, 250, 0.1);
-  color: var(--accent-purple);
-}
-
-.bill-status-badge.status-processing {
-  background: rgba(167, 139, 250, 0.1);
-  color: var(--accent-purple);
-}
-
-.bill-status-badge.status-completed {
-  background: rgba(68, 255, 68, 0.1);
-  color: #44ff44;
-}
-
-.bill-status-badge.status-error {
-  background: rgba(255, 68, 68, 0.1);
-  color: #ff4444;
-}
-
-/* Upload Progress */
-.upload-progress {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
-}
-
-.progress-bar {
-  flex: 1;
-  height: 6px;
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-full);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(0, 217, 255, 0.3);
+  position: relative;
   overflow: hidden;
 }
 
-.progress-fill {
+.upload-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
   height: 100%;
-  background: var(--accent-purple);
-  transition: width 0.3s ease;
+  background: linear-gradient(90deg, 
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s ease;
 }
 
-.progress-text {
-  font-size: 0.8125rem;
+.upload-button:hover::before {
+  left: 100%;
+}
+
+.upload-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 217, 255, 0.4);
+}
+
+/* Divider */
+.divider-line {
+  width: 100%;
+  text-align: center;
+  margin: 2.5rem 0;
+  position: relative;
+}
+
+.divider-line::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+}
+
+.divider-line span {
+  position: relative;
+  background: var(--bg-primary);
+  padding: 0 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-secondary);
-  min-width: 40px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
 }
 
-/* Processing State */
-.processing-state {
-  display: flex;
-  flex-direction: column;
+/* Manual Entry Button */
+.manual-entry-btn {
+  display: inline-flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg) 0;
+  gap: 0.75rem;
+  padding: 0.875rem 1.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.manual-entry-btn svg {
+  color: #00d9ff;
+}
+
+.manual-entry-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(0, 217, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* ===============================================
+   PROCESSING STATE
+   =============================================== */
+.processing-state-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: clamp(3rem, 6vw, 4rem);
+  text-align: center;
+  animation: fadeIn 0.5s ease;
+}
+
+.spinner-container {
+  margin-bottom: 2rem;
 }
 
 .spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid rgba(167, 139, 250, 0.2);
-  border-top-color: var(--accent-purple);
+  width: 60px;
+  height: 60px;
+  border: 3px solid rgba(0, 217, 255, 0.1);
+  border-top-color: #00d9ff;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  margin: 0 auto;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.processing-state p {
-  font-size: 0.875rem;
+.processing-state-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.75rem 0;
+}
+
+.processing-state-card p {
+  font-size: 1rem;
   color: var(--text-secondary);
   margin: 0;
 }
 
-/* Extracted Data */
-.extracted-data {
+/* ===============================================
+   MANUAL FORM - Modern Design
+   =============================================== */
+.manual-form-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: clamp(2rem, 4vw, 3rem);
+  animation: fadeIn 0.5s ease;
+}
+
+.form-header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.form-header h2 {
+  font-size: clamp(1.5rem, 3vw, 1.875rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.02em;
+}
+
+.form-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Form Grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.form-group {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--border-color);
+  gap: 0.625rem;
 }
 
-.data-row {
+.form-group label {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-.data-label {
-  font-size: 0.8125rem;
-  color: var(--text-muted);
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.data-value {
-  font-size: 0.9375rem;
-  font-weight: 600;
+.form-group label svg {
+  color: #00d9ff;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.875rem 1.125rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.form-group input::placeholder {
+  color: var(--text-muted);
+}
+
+.form-group input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(0, 217, 255, 0.4);
+  box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.cancel-btn,
+.submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+}
+
+.cancel-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
 }
 
-.amount-highlight {
-  color: var(--accent-purple);
-  font-size: 1.125rem;
+.submit-btn {
+  background: linear-gradient(135deg, #00d9ff 0%, #00b8d4 100%);
+  color: #0a0e27;
+  box-shadow: 0 4px 16px rgba(0, 217, 255, 0.3);
+  position: relative;
+  overflow: hidden;
 }
 
-.view-insights-btn {
-  margin-top: var(--spacing-md);
+.submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
   width: 100%;
-  padding: var(--spacing-md);
-  background: transparent;
-  border: 1px solid var(--accent-purple);
-  color: var(--accent-purple);
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all var(--transition-base);
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s ease;
 }
 
-.view-insights-btn:hover {
-  background: var(--accent-purple);
-  color: white;
-  transform: translateY(-1px);
+.submit-btn:hover::before {
+  left: 100%;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 217, 255, 0.4);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submit-btn svg {
+  transition: transform 0.3s ease;
+}
+
+.submit-btn:hover:not(:disabled) svg {
+  transform: translateX(4px);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .bills-grid {
-    grid-template-columns: 1fr;
-  }
-  
   .bills-container {
-    padding: var(--spacing-lg);
+    padding: 2rem 1rem;
   }
-  
+
   .bill-upload-area {
-    padding: var(--spacing-2xl);
+    padding: 2.5rem 1.5rem;
   }
-}
 
-/* Bill Card Actions */
-.bill-card-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
+  .form-actions {
+    flex-direction: column-reverse;
+  }
 
-.delete-bill-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-md);
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 1.5rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: all var(--transition-base);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.delete-bill-btn:hover {
-  background: rgba(255, 68, 68, 0.1);
-  border-color: #ff4444;
-  color: #ff4444;
-  transform: scale(1.1);
+  .cancel-btn,
+  .submit-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
