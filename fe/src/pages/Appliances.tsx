@@ -23,7 +23,7 @@ const Appliances: React.FC = () => {
 
   // Form State
   const [formData, setFormData] = useState({
-    category: "other",
+    category: "Other",
     name: "",
     wattage: "",
     count: "1",
@@ -82,13 +82,17 @@ const Appliances: React.FC = () => {
 
   const mapCategory = (name: string) => {
     const n = name.toLowerCase();
-    if (n.includes("ac") || n.includes("conditioner")) return "air_conditioner";
-    if (n.includes("fan")) return "fan";
-    if (n.includes("bulb") || n.includes("light")) return "lighting";
-    if (n.includes("tv") || n.includes("television")) return "television";
-    if (n.includes("fridge") || n.includes("refrigerator"))
-      return "refrigerator";
-    return "other";
+    if (n.includes("ac") || n.includes("conditioner") || n.includes("fan"))
+      return "Cooling";
+    if (n.includes("geyser") || n.includes("heater")) return "Heating";
+    if (n.includes("bulb") || n.includes("light") || n.includes("tube"))
+      return "Lighting";
+    if (n.includes("tv") || n.includes("television")) return "Entertainment";
+    if (n.includes("microwave") || n.includes("kettle") || n.includes("oven"))
+      return "Kitchen";
+    if (n.includes("washing") || n.includes("dryer")) return "Laundry";
+    if (n.includes("fridge") || n.includes("refrigerator")) return "Kitchen";
+    return "Other";
   };
 
   const handleInputChange = (
@@ -125,7 +129,7 @@ const Appliances: React.FC = () => {
       toast.success("Appliance added");
       setShowForm(false);
       setFormData({
-        category: "other",
+        category: "Other",
         name: "",
         wattage: "",
         count: "1",
@@ -216,7 +220,12 @@ const Appliances: React.FC = () => {
             onClick={() => setShowForm(true)}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+              <path
+                d="M12 5v14M5 12h14"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              />
             </svg>
             <span>Add New Appliance</span>
           </button>
@@ -259,12 +268,15 @@ const Appliances: React.FC = () => {
                     value={formData.category}
                     onChange={handleInputChange}
                   >
-                    <option value="other">Other</option>
-                    <option value="air_conditioner">AC</option>
-                    <option value="fan">Fan</option>
-                    <option value="lighting">Light</option>
-                    <option value="refrigerator">Fridge</option>
-                    <option value="television">TV</option>
+                    <option value="Other">Other</option>
+                    <option value="Cooling">Cooling (AC, Fans)</option>
+                    <option value="Heating">Heating (Geyser, Heater)</option>
+                    <option value="Kitchen">Kitchen (Microwave, Kettle)</option>
+                    <option value="Laundry">Laundry (Washing Machine)</option>
+                    <option value="Lighting">Lighting (Bulbs, Tubes)</option>
+                    <option value="Entertainment">
+                      Entertainment (TV, Gaming)
+                    </option>
                   </select>
                 </div>
                 <div className="form-group">
@@ -353,7 +365,13 @@ const Appliances: React.FC = () => {
           <button className="proceed-btn" onClick={handleProceed}>
             <span>Proceed to Analytics</span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path
+                d="M5 12h14M12 5l7 7-7 7"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
         </div>

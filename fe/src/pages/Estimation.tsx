@@ -144,13 +144,48 @@ const Estimation: React.FC = () => {
     if (!results || !billData) return;
     try {
       const token = localStorage.getItem("authToken");
+
+      // Create full breakdown from estimation appliances with normalized costs
+      // Use appliances if available, otherwise fall back to comparison breakdown
+      const fullBreakdown =
+        (results.estimation.appliances || []).length > 0
+          ? results.estimation.appliances.map((app) => {
+              const normalizedItem =
+                results.comparison.normalizedBreakdown.find(
+                  (nb) => nb.name === app.name
+                );
+
+              // Calculate monthly units: (watts * hours * 30 days) / 1000
+              const monthlyUnits = (app.watts * app.hours * 30) / 1000;
+              const estimatedCost = monthlyUnits * results.estimation.rate;
+
+              return {
+                name: app.name,
+                count: app.count,
+                hours: app.hours,
+                watts: app.watts,
+                monthlyUnits: monthlyUnits,
+                estimatedCost: estimatedCost,
+                normalizedCost: normalizedItem?.normalizedCost || estimatedCost,
+              };
+            })
+          : results.comparison.normalizedBreakdown.map((item) => ({
+              name: item.name,
+              count: 1,
+              hours: 0,
+              watts: 0,
+              monthlyUnits: 0,
+              estimatedCost: item.estimatedCost,
+              normalizedCost: item.normalizedCost,
+            }));
+
       const payload = {
-        userId: "current-user",
         totalEstimatedUnits: results.estimation.totalUnits,
         totalEstimatedCost: results.estimation.totalCost,
         actualBillAmount: billData.totalAmount,
         discrepancyRatio: results.comparison.discrepancyRatio,
-        breakdown: results.comparison.normalizedBreakdown,
+        breakdown: fullBreakdown,
+        aiRecommendations: results.ai, // Save AI recommendations
       };
 
       await axios.post(`${API_BASE_URL}/api/v1/bills/save`, payload, {
@@ -162,7 +197,8 @@ const Estimation: React.FC = () => {
 
       toast.success("Analysis saved to history!");
       navigate("/dashboard");
-    } catch {
+    } catch (error) {
+      console.error("Save failed:", error);
       toast.error("Failed to save record");
     }
   };
