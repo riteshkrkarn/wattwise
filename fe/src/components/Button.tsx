@@ -1,25 +1,27 @@
-import React from 'react';
-import './Button.css';
+import React from "react";
+import "./Button.css";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline';
-  size?: 'small' | 'medium' | 'large';
+  variant?: "primary" | "secondary" | "outline" | "ghost";
+  size?: "small" | "medium" | "large";
   isLoading?: boolean;
   children: React.ReactNode;
 }
 
 const Button: React.FC<ButtonProps> = ({
-  variant = 'primary',
-  size = 'medium',
+  variant = "primary",
+  size = "medium",
   isLoading = false,
   children,
-  className = '',
+  className = "",
   disabled,
   ...props
 }) => {
   return (
     <button
-      className={`btn btn-${variant} btn-${size} ${className} ${isLoading ? 'btn-loading' : ''}`}
+      className={`btn btn-${variant} btn-${size} ${className} ${
+        isLoading ? "btn-loading" : ""
+      }`}
       disabled={disabled || isLoading}
       {...props}
     >
