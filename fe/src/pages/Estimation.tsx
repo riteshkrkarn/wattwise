@@ -9,7 +9,7 @@ import type {
   AIResult,
   Appliance,
   BreakdownItem,
-} from "../utils/api";
+} from "../types";
 import toast from "react-hot-toast";
 import { Leaf, AlertTriangle, CheckCircle, TrendingDown } from "lucide-react";
 import "./Estimation.css";

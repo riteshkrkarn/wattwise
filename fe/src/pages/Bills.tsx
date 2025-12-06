@@ -1,19 +1,10 @@
 import React, { useState, useCallback } from "react";
 import { AnimatedNavBar } from "../components/AnimatedNavBar";
 import { billsAPI } from "../utils/api";
-import type { BillData, ParsedBillData } from "../utils/api";
+import type { BillData, ParsedBillData, UploadedBill } from "../types";
 import toast from "react-hot-toast";
 import "./Bills.css";
 import { useNavigate } from "react-router-dom";
-
-interface UploadedBill {
-  id: string;
-  fileName: string;
-  fileSize: number;
-  uploadDate: Date;
-  status: "uploading" | "processing" | "completed" | "error";
-  extractedData?: BillData;
-}
 
 const Bills: React.FC = () => {
   const navigate = useNavigate();

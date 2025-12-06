@@ -4,7 +4,7 @@ import SmartRecommendation from "../components/SmartRecommendation";
 import EnergyBarChart from "../components/EnergyBarChart";
 import { RelativeTimeCard } from "../components/ui/relative-time-card";
 import { billsAPI, aiAPI } from "../utils/api";
-import type { BillRecord, AIResult } from "../utils/api";
+import type { BillRecord, AIResult } from "../types";
 import "./Dashboard.css";
 
 const Dashboard: React.FC = () => {

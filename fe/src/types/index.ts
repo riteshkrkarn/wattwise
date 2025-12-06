@@ -117,6 +117,16 @@ export interface BillRecord {
   date?: string;
 }
 
+// UI-specific type for bill upload tracking
+export interface UploadedBill {
+  id: string;
+  fileName: string;
+  fileSize: number;
+  uploadDate: Date;
+  status: "uploading" | "processing" | "completed" | "error";
+  extractedData?: BillData;
+}
+
 // Response type for save/delete operations
 export interface OperationResponse {
   message: string;

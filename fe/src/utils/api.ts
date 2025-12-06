@@ -14,6 +14,7 @@ import type {
   AIAnalysisInput,
   AIResult,
   BillRecord,
+  UploadedBill,
   OperationResponse,
 } from "../types";
 
@@ -40,6 +41,7 @@ export type {
   AIAnalysisInput,
   AIResult,
   BillRecord,
+  UploadedBill,
   OperationResponse,
 };
 

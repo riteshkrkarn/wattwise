@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { AnimatedNavBar } from "../components/AnimatedNavBar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { appliancesAPI, billsAPI } from "../utils/api";
-import type { Appliance, Preset, BillData } from "../utils/api";
+import type { Appliance, Preset, BillData } from "../types";
 import toast from "react-hot-toast";
 import { Wind, Refrigerator, Fan, Lightbulb, Tv, Plug } from "lucide-react";
 import "./Appliances.css";
