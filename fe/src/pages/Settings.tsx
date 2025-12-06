@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { AnimatedNavBar } from "../components/AnimatedNavBar";
+import Input from "../components/Input";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "./Settings.css";
@@ -194,55 +195,49 @@ const Settings: React.FC = () => {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Change Password</h3>
             <form onSubmit={handlePasswordChange}>
-              <div className="form-group">
-                <label htmlFor="currentPassword">Current Password</label>
-                <input
-                  type="password"
-                  id="currentPassword"
-                  value={passwordData.currentPassword}
-                  onChange={(e) =>
-                    setPasswordData({
-                      ...passwordData,
-                      currentPassword: e.target.value,
-                    })
-                  }
-                  required
-                />
-              </div>
+              <Input
+                label="Current Password"
+                type="password"
+                id="currentPassword"
+                value={passwordData.currentPassword}
+                onChange={(e) =>
+                  setPasswordData({
+                    ...passwordData,
+                    currentPassword: e.target.value,
+                  })
+                }
+                required
+              />
 
-              <div className="form-group">
-                <label htmlFor="newPassword">New Password</label>
-                <input
-                  type="password"
-                  id="newPassword"
-                  value={passwordData.newPassword}
-                  onChange={(e) =>
-                    setPasswordData({
-                      ...passwordData,
-                      newPassword: e.target.value,
-                    })
-                  }
-                  required
-                  minLength={6}
-                />
-              </div>
+              <Input
+                label="New Password"
+                type="password"
+                id="newPassword"
+                value={passwordData.newPassword}
+                onChange={(e) =>
+                  setPasswordData({
+                    ...passwordData,
+                    newPassword: e.target.value,
+                  })
+                }
+                required
+                minLength={6}
+              />
 
-              <div className="form-group">
-                <label htmlFor="confirmPassword">Confirm New Password</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  value={passwordData.confirmPassword}
-                  onChange={(e) =>
-                    setPasswordData({
-                      ...passwordData,
-                      confirmPassword: e.target.value,
-                    })
-                  }
-                  required
-                  minLength={6}
-                />
-              </div>
+              <Input
+                label="Confirm New Password"
+                type="password"
+                id="confirmPassword"
+                value={passwordData.confirmPassword}
+                onChange={(e) =>
+                  setPasswordData({
+                    ...passwordData,
+                    confirmPassword: e.target.value,
+                  })
+                }
+                required
+                minLength={6}
+              />
 
               <div className="modal-actions">
                 <button
