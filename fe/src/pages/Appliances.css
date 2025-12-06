@@ -334,6 +334,19 @@
   font-size: 1rem;
   transition: all 0.3s ease;
   font-family: 'Inter', sans-serif;
+  line-height: 1.5;
+}
+
+.form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300d9ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 20px;
+  padding-right: 3rem;
+  cursor: pointer;
 }
 
 .form-group input:focus,
@@ -342,6 +355,27 @@
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(0, 217, 255, 0.5);
   box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+}
+
+.form-group select:hover {
+  border-color: rgba(0, 217, 255, 0.3);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* Enhanced option styling for better readability */
+.form-group select option {
+  background: #0a0e27;
+  color: var(--text-primary);
+  padding: 1rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.form-group select option:hover,
+.form-group select option:checked {
+  background: linear-gradient(135deg, rgba(0, 217, 255, 0.2) 0%, rgba(167, 139, 250, 0.2) 100%);
+  color: #00d9ff;
 }
 
 .form-grid-2 {
@@ -513,18 +547,86 @@
   }
 }
 
-/* Responsive */
+/* Better touch targets for mobile */
+@media (hover: none) and (pointer: coarse) {
+  .form-group input,
+  .form-group select {
+    padding: 1rem 1.25rem;
+    font-size: 16px; /* Prevents zoom on iOS */
+    min-height: 48px; /* Better touch target */
+  }
+
+  .form-group select {
+    padding-right: 3.5rem;
+    background-size: 24px;
+    background-position: right 1rem center;
+  }
+
+  .form-group select option {
+    padding: 1.25rem 1rem;
+    font-size: 16px;
+    line-height: 1.8;
+    min-height: 48px;
+  }
+
+  .add-appliance-btn,
+  .proceed-btn,
+  .submit-btn,
+  .cancel-btn {
+    min-height: 48px;
+    touch-action: manipulation;
+  }
+
+  .delete-btn-icon {
+    min-width: 44px;
+    min-height: 44px;
+    opacity: 1; /* Always visible on touch devices */
+  }
+}
+
+/* Responsive - Tablet */
+@media (max-width: 1024px) {
+  .appliances-container {
+    padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 2.5vw, 1.5rem);
+  }
+
+  .appliances-list {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  }
+
+  .appliance-form-card {
+    width: 92%;
+    max-width: 550px;
+    padding: 2rem 1.5rem;
+  }
+
+  .form-grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
+/* Responsive - Mobile */
 @media (max-width: 768px) {
+  .appliances-header h1 {
+    font-size: clamp(2rem, 8vw, 2.5rem);
+  }
+
+  .appliances-header p {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+
   .add-appliance-btn {
-    bottom: 1.5rem;
-    right: 1.5rem;
-    width: 56px;
-    height: 56px;
-    font-size: 1.5rem;
+    width: 100%;
+    justify-content: center;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    margin-bottom: 2rem;
   }
 
   .appliances-list {
     grid-template-columns: 1fr;
+    margin-bottom: 8rem; /* More space for footer */
   }
 
   .appliance-item {
@@ -536,19 +638,185 @@
     height: 52px;
   }
 
+  .app-info h4 {
+    font-size: 1.0625rem;
+  }
+
+  .app-info p {
+    font-size: 0.875rem;
+  }
+
+  .appliance-form-card {
+    width: 95%;
+    max-width: none;
+    max-height: 85vh;
+    padding: 1.75rem 1.25rem;
+    border-radius: 20px;
+  }
+
+  .appliance-form-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-group label {
+    font-size: 0.8125rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+
+  .form-group select {
+    background-position: right 0.75rem center;
+    background-size: 22px;
+    padding-right: 2.75rem;
+  }
+
+  .form-group select option {
+    padding: 1.125rem 0.875rem;
+    font-size: 1rem;
+  }
+
   .form-grid-2 {
     grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
 
   .form-actions {
     flex-direction: column-reverse;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .cancel-btn,
+  .submit-btn {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
   }
 
   .appliances-footer {
     padding: 1rem;
+    background: linear-gradient(180deg, 
+      transparent 0%,
+      rgba(10, 14, 39, 0.97) 15%,
+      rgba(10, 14, 39, 1) 100%
+    );
   }
 
   .proceed-btn {
     width: 100%;
+    padding: 1rem 2rem;
+    font-size: 1.0625rem;
+  }
+
+  .delete-btn-icon {
+    opacity: 1; /* Always visible on mobile */
+  }
+}
+
+/* Responsive - Small Mobile */
+@media (max-width: 480px) {
+  .appliances-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .appliances-header {
+    margin-bottom: 2rem;
+  }
+
+  .appliances-header h1 {
+    font-size: 1.875rem;
+  }
+
+  .appliances-header p {
+    font-size: 0.9375rem;
+  }
+
+  .appliance-item {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .app-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .app-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .delete-btn-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1.25rem;
+  }
+
+  .appliance-form-card {
+    width: 96%;
+    padding: 1.5rem 1rem;
+  }
+
+  .appliance-form-card h3 {
+    font-size: 1.375rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 0.75rem 0.875rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+
+  .form-group select {
+    background-size: 20px;
+    background-position: right 0.625rem center;
+    padding-right: 2.5rem;
+  }
+
+  .form-group select option {
+    padding: 1rem 0.75rem;
+    font-size: 1rem;
+  }
+
+  .proceed-btn {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+/* Landscape mode on phones */
+@media (max-width: 768px) and (orientation: landscape) {
+  .appliance-form-card {
+    max-height: 95vh;
+    padding: 1.25rem 1rem;
+  }
+
+  .appliance-form-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .form-actions {
+    margin-top: 1rem;
   }
 }
