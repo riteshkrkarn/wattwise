@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { AnimatedNavBar } from "../components/AnimatedNavBar";
+import { AnimatedBackground } from "../components/AnimatedBackground";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { Appliance, Preset, BillData, ApiResponse } from "../types";
 import toast from "react-hot-toast";
@@ -200,6 +201,7 @@ const Appliances: React.FC = () => {
 
   return (
     <div className="appliances-page">
+      <AnimatedBackground />
       <AnimatedNavBar />
       <div className="appliances-container">
         <div className="appliances-header">
@@ -213,7 +215,10 @@ const Appliances: React.FC = () => {
             className="add-appliance-btn"
             onClick={() => setShowForm(true)}
           >
-            + Add Appliance
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+            </svg>
+            <span>Add New Appliance</span>
           </button>
         )}
 
@@ -346,7 +351,10 @@ const Appliances: React.FC = () => {
         {/* Footer Action */}
         <div className="appliances-footer">
           <button className="proceed-btn" onClick={handleProceed}>
-            Proceed to Analysis →
+            <span>Proceed to Analytics</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </button>
         </div>
       </div>

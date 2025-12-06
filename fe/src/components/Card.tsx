@@ -14,5 +14,4 @@ const Card: React.FC<CardProps> = ({ children, className = '', hover = false }) 
     </div>
   );
 };
-
 export default Card;
