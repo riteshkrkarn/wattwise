@@ -1,8 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Link, useLocation } from "react-router-dom";
-import { Home, FileText, Zap, BarChart3, Settings } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Home, FileText, Zap, BarChart3, Settings, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 import "./AnimatedNavBar.css";
 
 interface NavItem {
@@ -21,12 +22,19 @@ const navItems: NavItem[] = [
 
 export const AnimatedNavBar: React.FC = () => {
   const location = useLocation();
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   // Derive active tab directly from location
   const activeTab =
     navItems.find((item) => location.pathname === item.url)?.name ||
     "Dashboard";
+
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out successfully");
+    navigate("/login");
+  };
 
   return (
     <div className="animated-navbar-container">
@@ -75,14 +83,25 @@ export const AnimatedNavBar: React.FC = () => {
           })}
         </div>
 
-        {/* User Profile */}
+        {/* User Profile & Logout */}
         <div className="navbar-user">
-          <div className="user-avatar">
-            {user?.name?.charAt(0).toUpperCase() || "U"}
+          <div className="user-info">
+            <div className="user-avatar">
+              {user?.name?.charAt(0).toUpperCase() || "U"}
+            </div>
+            <span className="user-name">{user?.name || "User"}</span>
           </div>
-          <span className="user-name">{user?.name || "User"}</span>
+          <button
+            className="logout-btn"
+            onClick={handleLogout}
+            title="Logout"
+            aria-label="Logout"
+          >
+            <LogOut size={18} strokeWidth={2.5} />
+          </button>
         </div>
       </div>
     </div>
   );
 };
+
