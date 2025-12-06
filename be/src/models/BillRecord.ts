@@ -18,6 +18,7 @@ export interface IBillRecord extends Document {
   discrepancyRatio?: number;
   breakdown: IBillBreakdownItem[];
   metadata?: Record<string, any>; // For any extra info like "alert level"
+  aiRecommendations?: Record<string, any>; // AI analysis results (carbon footprint, suggestions, etc.)
 }
 
 const BillBreakdownSchema = new Schema(
@@ -63,6 +64,10 @@ const BillRecordSchema: Schema = new Schema(
     metadata: {
       type: Object,
       default: {},
+    },
+    aiRecommendations: {
+      type: Object,
+      default: null,
     },
   },
   { timestamps: true }

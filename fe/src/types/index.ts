@@ -49,6 +49,10 @@ export interface Appliance {
 // Bill & Estimation Types
 export interface BreakdownItem {
   name: string;
+  count?: number;
+  hours?: number;
+  watts?: number;
+  monthlyUnits?: number;
   estimatedCost: number;
   normalizedCost: number;
 }
@@ -123,6 +127,7 @@ export interface BillRecord {
   discrepancyRatio: number;
   breakdown: BreakdownItem[];
   date?: string;
+  aiRecommendations?: AIResult;
 }
 
 // UI-specific type for bill upload tracking

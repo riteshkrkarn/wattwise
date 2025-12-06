@@ -92,5 +92,6 @@ export const saveRecordSchema = z.object({
       )
       .nonempty("Breakdown cannot be empty"),
     metadata: z.record(z.string(), z.any()).optional(),
+    aiRecommendations: z.record(z.string(), z.any()).optional().nullable(),
   }),
 });

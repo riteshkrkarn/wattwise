@@ -64,6 +64,7 @@ export class BillController {
       breakdown,
       discrepancyRatio,
       metadata,
+      aiRecommendations,
     } = req.body;
 
     const userId = req.user?._id;
@@ -84,6 +85,7 @@ export class BillController {
       discrepancyRatio,
       breakdown,
       metadata,
+      aiRecommendations, // Save AI recommendations
       date: new Date(),
     });
 
