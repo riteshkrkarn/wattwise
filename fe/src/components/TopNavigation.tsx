@@ -1,20 +1,22 @@
-import React from 'react';
-import { useAuth } from '../context/AuthContext';
-import './TopNavigation.css';
+import React from "react";
+import { useAuth } from "../context/AuthContext";
+import "./TopNavigation.css";
 
 interface TopNavigationProps {
   currentPage?: string;
 }
 
-const TopNavigation: React.FC<TopNavigationProps> = ({ currentPage = 'Dashboard' }) => {
-  const { user, logout } = useAuth();
+const TopNavigation: React.FC<TopNavigationProps> = ({
+  currentPage = "Dashboard",
+}) => {
+  const { user } = useAuth();
 
   const navItems = [
-    { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Overview', path: '/dashboard' },
-    { label: 'Bills', path: '/bills' },
-    { label: 'Appliances', path: '/appliances' },
-    { label: 'Settings', path: '/settings' },
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Overview", path: "/dashboard" },
+    { label: "Bills", path: "/bills" },
+    { label: "Appliances", path: "/appliances" },
+    { label: "Settings", path: "/settings" },
   ];
 
   return (
@@ -28,7 +30,9 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ currentPage = 'Dashboard'
             <a
               key={item.label}
               href={item.path}
-              className={`nav-item ${currentPage === item.label ? 'active' : ''}`}
+              className={`nav-item ${
+                currentPage === item.label ? "active" : ""
+              }`}
             >
               {item.label}
             </a>
@@ -39,11 +43,13 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ currentPage = 'Dashboard'
       <div className="nav-right">
         <div className="user-profile">
           <div className="user-avatar">
-            {user?.name?.charAt(0).toUpperCase() || 'U'}
+            {user?.name?.charAt(0).toUpperCase() || "U"}
           </div>
           <div className="user-info">
-            <span className="user-name">{user?.name || 'User'}</span>
-            <span className="user-email">@{user?.email?.split('@')[0] || 'user'}</span>
+            <span className="user-name">{user?.name || "User"}</span>
+            <span className="user-email">
+              @{user?.email?.split("@")[0] || "user"}
+            </span>
           </div>
         </div>
       </div>

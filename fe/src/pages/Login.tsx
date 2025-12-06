@@ -1,35 +1,38 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import Button from '../components/Button';
-import Input from '../components/Input';
-import Card from '../components/Card';
-import './Auth.css';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
+import { authAPI } from "../utils/api";
+import Button from "../components/Button";
+import Input from "../components/Input";
+import Card from "../components/Card";
+import "./Auth.css";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {}
+  );
   const [isLoading, setIsLoading] = useState(false);
-  const [apiError, setApiError] = useState('');
 
   const validateForm = (): boolean => {
     const newErrors: { email?: string; password?: string } = {};
 
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = "Email is invalid";
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
 
     setErrors(newErrors);
@@ -38,39 +41,48 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setApiError('');
 
     if (!validateForm()) return;
 
     setIsLoading(true);
 
-    // Simulate API delay
-    setTimeout(() => {
-      try {
-        // Mock authentication (bypass API for now)
-        const mockUser = {
-          id: '1',
-          name: formData.email.split('@')[0],
-          email: formData.email,
-        };
-        const mockToken = 'mock-jwt-token-' + Date.now();
+    try {
+      const response = await authAPI.login(formData.email, formData.password);
 
-        login(mockUser, mockToken);
-        navigate('/dashboard');
-      } catch (error) {
-        setApiError(error instanceof Error ? error.message : 'Login failed. Please try again.');
-      } finally {
-        setIsLoading(false);
+      if (response.success && response.data) {
+        const { user, accessToken } = response.data;
+
+        // Map _id to id for context
+        const userData = {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          city: user.city,
+        };
+
+        login(userData, accessToken);
+        toast.success("Login successful!");
+        navigate("/dashboard");
+      } else {
+        throw new Error(response.message || "Login failed");
       }
-    }, 500);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Login failed. Please try again.";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error for this field when user starts typing
     if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -79,15 +91,13 @@ const Login: React.FC = () => {
       <div className="auth-container">
         <div className="auth-header">
           <h1 className="gradient-text">WattWise</h1>
-          <p className="auth-subtitle">Welcome back! Please login to your account.</p>
+          <p className="auth-subtitle">
+            Welcome back! Please login to your account.
+          </p>
         </div>
 
         <Card className="auth-card">
           <h2 className="auth-title">Login</h2>
-
-          {apiError && (
-            <div className="error-banner">{apiError}</div>
-          )}
 
           <form onSubmit={handleSubmit} className="auth-form">
             <Input
@@ -110,14 +120,19 @@ const Login: React.FC = () => {
               error={errors.password}
             />
 
-            <Button type="submit" size="large" isLoading={isLoading} className="auth-button">
+            <Button
+              type="submit"
+              size="large"
+              isLoading={isLoading}
+              className="auth-button"
+            >
               Login
             </Button>
           </form>
 
           <div className="auth-footer">
             <p>
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <Link to="/signup" className="auth-link">
                 Sign up here
               </Link>

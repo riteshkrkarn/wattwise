@@ -1,59 +1,66 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import Button from '../components/Button';
-import Input from '../components/Input';
-import Card from '../components/Card';
-import './Auth.css';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
+import { authAPI } from "../utils/api";
+import Button from "../components/Button";
+import Input from "../components/Input";
+import Card from "../components/Card";
+import "./Auth.css";
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    city: "",
   });
   const [errors, setErrors] = useState<{
     name?: string;
     email?: string;
     password?: string;
     confirmPassword?: string;
+    city?: string;
   }>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [apiError, setApiError] = useState('');
 
   const getPasswordStrength = (password: string): string => {
-    if (password.length === 0) return '';
-    if (password.length < 6) return 'weak';
-    if (password.length < 10) return 'medium';
-    return 'strong';
+    if (password.length === 0) return "";
+    if (password.length < 6) return "weak";
+    if (password.length < 10) return "medium";
+    return "strong";
   };
 
   const validateForm = (): boolean => {
     const newErrors: typeof errors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = "Name is required";
     }
 
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = "Email is invalid";
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = "Please confirm your password";
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    if (!formData.city.trim()) {
+      newErrors.city = "City is required";
     }
 
     setErrors(newErrors);
@@ -62,39 +69,53 @@ const Signup: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setApiError('');
 
     if (!validateForm()) return;
 
     setIsLoading(true);
 
-    // Simulate API delay
-    setTimeout(() => {
-      try {
-        // Mock authentication (bypass API for now)
-        const mockUser = {
-          id: '1',
-          name: formData.name,
-          email: formData.email,
-        };
-        const mockToken = 'mock-jwt-token-' + Date.now();
+    try {
+      const response = await authAPI.signup(
+        formData.name,
+        formData.email,
+        formData.password,
+        formData.city
+      );
 
-        login(mockUser, mockToken);
-        navigate('/dashboard');
-      } catch (error) {
-        setApiError(error instanceof Error ? error.message : 'Signup failed. Please try again.');
-      } finally {
-        setIsLoading(false);
+      if (response.success && response.data) {
+        const { user, accessToken } = response.data;
+
+        // Map _id to id for context
+        const userData = {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          city: user.city,
+        };
+
+        login(userData, accessToken);
+        toast.success("Account created successfully!");
+        navigate("/dashboard");
+      } else {
+        throw new Error(response.message || "Signup failed");
       }
-    }, 500);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Signup failed. Please try again.";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error for this field when user starts typing
     if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -105,15 +126,13 @@ const Signup: React.FC = () => {
       <div className="auth-container">
         <div className="auth-header">
           <h1 className="gradient-text">WattWise</h1>
-          <p className="auth-subtitle">Create your account and start saving energy today!</p>
+          <p className="auth-subtitle">
+            Create your account and start saving energy today!
+          </p>
         </div>
 
         <Card className="auth-card">
           <h2 className="auth-title">Sign Up</h2>
-
-          {apiError && (
-            <div className="error-banner">{apiError}</div>
-          )}
 
           <form onSubmit={handleSubmit} className="auth-form">
             <Input
@@ -136,6 +155,16 @@ const Signup: React.FC = () => {
               error={errors.email}
             />
 
+            <Input
+              label="City"
+              type="text"
+              name="city"
+              placeholder="Mumbai"
+              value={formData.city}
+              onChange={handleChange}
+              error={errors.city}
+            />
+
             <div>
               <Input
                 label="Password"
@@ -147,7 +176,9 @@ const Signup: React.FC = () => {
                 error={errors.password}
               />
               {passwordStrength && (
-                <div className={`password-strength password-${passwordStrength}`}>
+                <div
+                  className={`password-strength password-${passwordStrength}`}
+                >
                   Strength: {passwordStrength}
                 </div>
               )}
@@ -163,14 +194,19 @@ const Signup: React.FC = () => {
               error={errors.confirmPassword}
             />
 
-            <Button type="submit" size="large" isLoading={isLoading} className="auth-button">
+            <Button
+              type="submit"
+              size="large"
+              isLoading={isLoading}
+              className="auth-button"
+            >
               Create Account
             </Button>
           </form>
 
           <div className="auth-footer">
             <p>
-              Already have an account?{' '}
+              Already have an account?{" "}
               <Link to="/login" className="auth-link">
                 Login here
               </Link>

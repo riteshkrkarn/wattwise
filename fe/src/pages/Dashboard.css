@@ -168,7 +168,7 @@
 .change-module-btn {
   padding: 0.5rem 1rem;
   background: var(--bg-tertiary);
-  border:none;
+  border: none;
   border-radius: 0.5rem;
   color: var(--text-secondary);
   font-size: 0.8125rem;
@@ -574,15 +574,111 @@ input:checked + .slider:before {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .bill-comparison {
     width: 100%;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
   }
-  
+
   .bill-amount-minimal {
     font-size: 2rem;
   }
+}
+
+/* Skeleton Loaders */
+.skeleton-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-2xl);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-text {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.recommendation-skeleton {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Fade-in Animation */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Empty States */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3xl);
+  text-align: center;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  min-height: 200px;
+}
+
+.empty-state-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+.empty-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.empty-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.text-warning {
+  color: #ffaa00;
+}
+
+.text-success {
+  color: #44ff44;
 }

@@ -1,27 +1,36 @@
-import React, { useState, useCallback } from 'react';
-import { AnimatedNavBar } from '../components/AnimatedNavBar';
-import './Bills.css';
+import React, { useState, useCallback } from "react";
+import { AnimatedNavBar } from "../components/AnimatedNavBar";
+import { billsAPI } from "../utils/api";
+import type { BillData, ParsedBillData } from "../utils/api";
+import toast from "react-hot-toast";
+import "./Bills.css";
+import { useNavigate } from "react-router-dom";
 
 interface UploadedBill {
   id: string;
   fileName: string;
   fileSize: number;
   uploadDate: Date;
-  status: 'uploading' | 'processing' | 'completed' | 'error';
-  extractedData?: {
-    billMonth: string;
-    totalAmount: number;
-    unitsConsumed: number;
-    dueDate: string;
-    consumerName?: string;
-    consumerNumber?: string;
-  };
+  status: "uploading" | "processing" | "completed" | "error";
+  extractedData?: BillData;
 }
 
 const Bills: React.FC = () => {
+  const navigate = useNavigate();
   const [bills, setBills] = useState<UploadedBill[]>([]);
   const [isDragging, setIsDragging] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [showManualForm, setShowManualForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Manual Form State
+  const [manualData, setManualData] = useState<BillData>({
+    billMonth: "",
+    totalAmount: 0,
+    unitsConsumed: 0,
+    dueDate: "",
+    consumerName: "",
+    consumerNumber: "",
+  });
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -36,203 +45,240 @@ const Bills: React.FC = () => {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
-    const files = Array.from(e.dataTransfer.files);
-    handleFileUpload(files);
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFileUpload(e.dataTransfer.files[0]);
+    }
   }, []);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files);
-      handleFileUpload(files);
+    if (e.target.files && e.target.files.length > 0) {
+      handleFileUpload(e.target.files[0]);
     }
   };
 
-  const handleFileUpload = (files: File[]) => {
-    files.forEach(file => {
-      // Create new bill entry
-      const newBill: UploadedBill = {
-        id: Date.now().toString(),
-        fileName: file.name,
-        fileSize: file.size,
-        uploadDate: new Date(),
-        status: 'uploading'
+  const handleFileUpload = async (file: File) => {
+    // Validate file type
+    if (file.type !== "application/pdf") {
+      toast.error("Please upload a PDF file");
+      return;
+    }
+
+    const newBill: UploadedBill = {
+      id: Date.now().toString(),
+      fileName: file.name,
+      fileSize: file.size,
+      uploadDate: new Date(),
+      status: "uploading",
+    };
+
+    setBills([newBill]); // Only handle one bill at a time for this flow
+
+    try {
+      // 1. Upload
+      setBills((prev) =>
+        prev.map((b) =>
+          b.id === newBill.id ? { ...b, status: "processing" } : b
+        )
+      );
+
+      const response = await billsAPI.uploadPdf(file);
+      const parsedData: ParsedBillData = response.data;
+
+      // Map API response to our state
+      const extracted: BillData = {
+        billMonth: parsedData.billingPeriod || "",
+        totalAmount: parsedData.totalAmount || 0,
+        unitsConsumed: parsedData.totalUnits || 0,
+        dueDate: "", // AI might not extract due date
+        consumerName: parsedData.consumerName || "",
+        consumerNumber: parsedData.consumerNumber || "",
       };
 
-      setBills(prev => [newBill, ...prev]);
-
-      // Simulate upload progress
-      let progress = 0;
-      const uploadInterval = setInterval(() => {
-        progress += 10;
-        setUploadProgress(progress);
-
-        if (progress >= 100) {
-          clearInterval(uploadInterval);
-          // Change status to processing
-          setBills(prev => prev.map(b => 
-            b.id === newBill.id ? { ...b, status: 'processing' } : b
-          ));
-
-          // Simulate AI processing
-          setTimeout(() => {
-            setBills(prev => prev.map(b => 
-              b.id === newBill.id ? {
+      setBills((prev) =>
+        prev.map((b) =>
+          b.id === newBill.id
+            ? {
                 ...b,
-                status: 'completed',
-                extractedData: {
-                  billMonth: 'November 2025',
-                  totalAmount: 3240,
-                  unitsConsumed: 462,
-                  dueDate: '15 Dec 2025',
-                  consumerName: 'User Name',
-                  consumerNumber: 'CONS123456'
-                }
-              } : b
-            ));
-          }, 3000);
-        }
-      }, 200);
-    });
+                status: "completed",
+                extractedData: extracted,
+              }
+            : b
+        )
+      );
+
+      // Populate manual form for editing
+      setManualData(extracted);
+      setShowManualForm(true);
+      toast.success("Bill uploaded and analyzed successfully!");
+    } catch (error) {
+      console.error("Upload failed", error);
+      setBills((prev) =>
+        prev.map((b) => (b.id === newBill.id ? { ...b, status: "error" } : b))
+      );
+      toast.error("Failed to analyze bill. Please enter details manually.");
+      setShowManualForm(true); // Fallback to manual entry
+    }
   };
 
-  const handleDeleteBill = (billId: string) => {
-    setBills(prev => prev.filter(bill => bill.id !== billId));
+  const handleManualInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setManualData((prev) => ({
+      ...prev,
+      [name]:
+        name === "totalAmount" || name === "unitsConsumed"
+          ? parseFloat(value) || 0
+          : value,
+    }));
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  const handleSaveAndProceed = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      // Pass this data to the Appliances page via navigation state
+      navigate("/appliances", { state: { billData: manualData } });
+    } catch (error) {
+      toast.error("Something went wrong");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="bills-page">
       <AnimatedNavBar />
-      
+
       <div className="bills-container">
         <div className="bills-header">
-          <h1>Electricity Bills</h1>
-          <p className="bills-subtitle">Upload your bills for AI-powered insights and analysis</p>
+          <h1>Electricity Bill Upload</h1>
+          <p className="bills-subtitle">
+            Upload your bill PDF or enter details manually
+          </p>
         </div>
 
-        {/* Upload Area */}
-        <div 
-          className={`bill-upload-area ${isDragging ? 'dragging' : ''}`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
-          <div className="upload-icon">📄</div>
-          <h3 className="upload-title">Drag & drop your bill here</h3>
-          <p className="upload-description">or click to browse files</p>
-          <p className="upload-formats">Supports PDF, JPG, PNG (Max 10MB)</p>
-          
-          <input
-            type="file"
-            id="bill-file-input"
-            className="file-input-hidden"
-            accept=".pdf,.jpg,.jpeg,.png"
-            multiple
-            onChange={handleFileSelect}
-          />
-          <label htmlFor="bill-file-input" className="upload-button">
-            Choose File
-          </label>
-        </div>
+        {/* Upload Area - Hide if showing form */}
+        {!showManualForm && (
+          <div
+            className={`bill-upload-area ${isDragging ? "dragging" : ""}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <div className="upload-icon">📄</div>
+            <h3 className="upload-title">Drag & drop your bill PDF here</h3>
+            <p className="upload-description">
+              AI will extract the details for you
+            </p>
+            <p className="upload-formats">Max 10MB</p>
 
-        {/* Bills List */}
-        <div className="bills-list">
-          <h2 className="list-title">Uploaded Bills</h2>
-          
-          {bills.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">📊</div>
-              <p className="empty-text">No bills uploaded yet</p>
-              <p className="empty-subtext">Upload your first bill to get AI-powered insights</p>
+            <input
+              type="file"
+              id="bill-file-input"
+              className="file-input-hidden"
+              accept=".pdf"
+              onChange={handleFileSelect}
+            />
+            <label htmlFor="bill-file-input" className="upload-button">
+              Choose File
+            </label>
+
+            <div className="manual-entry-link">
+              <button
+                className="text-btn"
+                onClick={() => setShowManualForm(true)}
+              >
+                Or enter details manually
+              </button>
             </div>
-          ) : (
-            <div className="bills-grid">
-              {bills.map(bill => (
-                <div key={bill.id} className={`bill-card status-${bill.status}`}>
-                  <div className="bill-card-header">
-                    <div className="bill-file-info">
-                      <div className="file-icon">
-                        {bill.status === 'completed' ? '✓' : 
-                         bill.status === 'processing' ? '⚙️' : 
-                         bill.status === 'error' ? '⚠️' : '📄'}
-                      </div>
-                      <div>
-                        <h4 className="bill-file-name">{bill.fileName}</h4>
-                        <p className="bill-file-meta">
-                          {formatFileSize(bill.fileSize)} • {bill.uploadDate.toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="bill-card-actions">
-                      <div className={`bill-status-badge status-${bill.status}`}>
-                        {bill.status === 'uploading' && 'Uploading...'}
-                        {bill.status === 'processing' && 'Processing...'}
-                        {bill.status === 'completed' && 'Ready'}
-                        {bill.status === 'error' && 'Error'}
-                      </div>
-                      <button 
-                        className="delete-bill-btn" 
-                        onClick={() => handleDeleteBill(bill.id)}
-                        title="Delete bill"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </div>
+          </div>
+        )}
 
-                  {bill.status === 'uploading' && (
-                    <div className="upload-progress">
-                      <div className="progress-bar">
-                        <div 
-                          className="progress-fill" 
-                          style={{ width: `${uploadProgress}%` }}
-                        ></div>
-                      </div>
-                      <span className="progress-text">{uploadProgress}%</span>
-                    </div>
-                  )}
+        {/* Processing State */}
+        {bills.length > 0 && bills[0].status === "processing" && (
+          <div className="processing-state-card">
+            <div className="spinner"></div>
+            <p>Analyzing your bill with AI...</p>
+          </div>
+        )}
 
-                  {bill.status === 'processing' && (
-                    <div className="processing-state">
-                      <div className="spinner"></div>
-                      <p>AI is extracting bill details...</p>
-                    </div>
-                  )}
+        {/* Manual/Edit Form */}
+        {showManualForm && (
+          <div className="manual-form-card">
+            <h2>
+              {bills.length > 0 && bills[0].status === "completed"
+                ? "Review & Confirmation"
+                : "Enter Bill Details"}
+            </h2>
+            <p className="form-subtitle">
+              {bills.length > 0 && bills[0].status === "completed"
+                ? "Please verify the extracted details below."
+                : "Please fill in the details from your electricity bill."}
+            </p>
 
-                  {bill.status === 'completed' && bill.extractedData && (
-                    <div className="extracted-data">
-                      <div className="data-row">
-                        <span className="data-label">Bill Month</span>
-                        <span className="data-value">{bill.extractedData.billMonth}</span>
-                      </div>
-                      <div className="data-row">
-                        <span className="data-label">Total Amount</span>
-                        <span className="data-value amount-highlight">₹{bill.extractedData.totalAmount}</span>
-                      </div>
-                      <div className="data-row">
-                        <span className="data-label">Units Consumed</span>
-                        <span className="data-value">{bill.extractedData.unitsConsumed} kWh</span>
-                      </div>
-                      <div className="data-row">
-                        <span className="data-label">Due Date</span>
-                        <span className="data-value">{bill.extractedData.dueDate}</span>
-                      </div>
-                      <button className="view-insights-btn">
-                        View Insights →
-                      </button>
-                    </div>
-                  )}
+            <form onSubmit={handleSaveAndProceed}>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Bill Month/Period</label>
+                  <input
+                    type="text"
+                    name="billMonth"
+                    value={manualData.billMonth}
+                    onChange={handleManualInputChange}
+                    placeholder="e.g. Oct 2023"
+                    required
+                  />
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <div className="form-group">
+                  <label>Total Amount (₹)</label>
+                  <input
+                    type="number"
+                    name="totalAmount"
+                    value={manualData.totalAmount || ""}
+                    onChange={handleManualInputChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Units Consumed (kWh)</label>
+                  <input
+                    type="number"
+                    name="unitsConsumed"
+                    value={manualData.unitsConsumed || ""}
+                    onChange={handleManualInputChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Consumer Number (Optional)</label>
+                  <input
+                    type="text"
+                    name="consumerNumber"
+                    value={manualData.consumerNumber}
+                    onChange={handleManualInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className="form-actions">
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  onClick={() => setShowManualForm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Saving..." : "Confirm & Proceed"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );

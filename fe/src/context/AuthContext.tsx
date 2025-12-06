@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { setAuthToken, removeAuthToken } from '../utils/api';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { setAuthToken, removeAuthToken } from "../utils/api";
 
 interface User {
   id: string;
   name: string;
   email: string;
+  city?: string;
 }
 
 interface AuthContextType {
@@ -17,22 +18,24 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check if user is already logged in (token exists in localStorage)
-    const token = localStorage.getItem('authToken');
-    const savedUser = localStorage.getItem('user');
-    
+    const token = localStorage.getItem("authToken");
+    const savedUser = localStorage.getItem("user");
+
     if (token && savedUser) {
       try {
         setUser(JSON.parse(savedUser));
       } catch (error) {
-        console.error('Failed to parse user data:', error);
-        localStorage.removeItem('user');
-        localStorage.removeItem('authToken');
+        console.error("Failed to parse user data:", error);
+        localStorage.removeItem("user");
+        localStorage.removeItem("authToken");
       }
     }
     setIsLoading(false);
@@ -41,13 +44,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = (userData: User, token: string) => {
     setUser(userData);
     setAuthToken(token);
-    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
     removeAuthToken();
-    localStorage.removeItem('user');
+    localStorage.removeItem("user");
   };
 
   return (
@@ -68,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

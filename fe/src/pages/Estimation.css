@@ -1,0 +1,99 @@
+.estimation-page {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  padding-bottom: 2rem;
+}
+
+.estimation-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.estimation-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.comparison-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.comparison-card {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.discrepancy-card {
+  grid-column: 1 / -1;
+  background: rgba(255, 165, 0, 0.1);
+  border: 1px solid orange;
+}
+
+.discrepancy-card.safe {
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid green;
+}
+
+.big-number {
+  font-size: 3rem;
+  font-weight: bold;
+  display: block;
+  margin: 1rem 0;
+}
+
+.ai-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.co2-card {
+  background: #e6f4ea; /* Light green tint */
+  padding: 2rem;
+  border-radius: 1rem;
+  color: #137333;
+}
+
+.dark-mode .co2-card {
+  background: rgba(20, 80, 40, 0.3);
+  color: #81c995;
+}
+
+.recommendations-list {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+}
+
+.rec-item {
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 0;
+}
+
+.rec-item:last-child {
+  border-bottom: none;
+}
+
+.save-section {
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.save-btn {
+  background: var(--accent-blue);
+  color: white;
+  padding: 1rem 3rem;
+  border-radius: 0.5rem;
+  font-size: 1.2rem;
+  border: none;
+  cursor: pointer;
+}

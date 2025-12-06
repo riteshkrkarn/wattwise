@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Link, useLocation } from 'react-router-dom';
-import { Home, FileText, Zap, BarChart3, Settings } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import './AnimatedNavBar.css';
+import React from "react";
+import { motion } from "framer-motion";
+import { Link, useLocation } from "react-router-dom";
+import { Home, FileText, Zap, BarChart3, Settings } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import "./AnimatedNavBar.css";
 
 interface NavItem {
   name: string;
@@ -12,35 +12,21 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Dashboard', url: '/dashboard', icon: Home },
-  { name: 'Bills', url: '/bills', icon: FileText },
-  { name: 'Appliances', url: '/appliances', icon: Zap },
-  { name: 'Analytics', url: '/analytics', icon: BarChart3 },
-  { name: 'Settings', url: '/settings', icon: Settings },
+  { name: "Dashboard", url: "/dashboard", icon: Home },
+  { name: "Bills", url: "/bills", icon: FileText },
+  { name: "Appliances", url: "/appliances", icon: Zap },
+  { name: "Analytics", url: "/analytics", icon: BarChart3 },
+  { name: "Settings", url: "/settings", icon: Settings },
 ];
 
-export function AnimatedNavBar() {
+export const AnimatedNavBar: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('Dashboard');
-  const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const currentItem = navItems.find(item => location.pathname === item.url);
-    if (currentItem) {
-      setActiveTab(currentItem.name);
-    }
-  }, [location]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // Derive active tab directly from location
+  const activeTab =
+    navItems.find((item) => location.pathname === item.url)?.name ||
+    "Dashboard";
 
   return (
     <div className="animated-navbar-container">
@@ -60,8 +46,7 @@ export function AnimatedNavBar() {
               <Link
                 key={item.name}
                 to={item.url}
-                onClick={() => setActiveTab(item.name)}
-                className={`nav-link ${isActive ? 'active' : ''}`}
+                className={`nav-link ${isActive ? "active" : ""}`}
               >
                 <span className="nav-link-text">{item.name}</span>
                 <span className="nav-link-icon">
@@ -73,7 +58,7 @@ export function AnimatedNavBar() {
                     className="active-indicator"
                     initial={false}
                     transition={{
-                      type: 'spring',
+                      type: "spring",
                       stiffness: 300,
                       damping: 30,
                     }}
@@ -93,11 +78,11 @@ export function AnimatedNavBar() {
         {/* User Profile */}
         <div className="navbar-user">
           <div className="user-avatar">
-            {user?.name?.charAt(0).toUpperCase() || 'U'}
+            {user?.name?.charAt(0).toUpperCase() || "U"}
           </div>
-          <span className="user-name">{user?.name || 'User'}</span>
+          <span className="user-name">{user?.name || "User"}</span>
         </div>
       </div>
     </div>
   );
-}
+};
