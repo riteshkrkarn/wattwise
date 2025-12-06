@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { AnimatedNavBar } from "../components/AnimatedNavBar";
 import {
   BarChart,
@@ -12,10 +13,11 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { billsAPI } from "../utils/api";
-import type { BillRecord } from "../types";
+import type { BillRecord, ApiResponse } from "../types";
 import toast from "react-hot-toast";
 import "./Analytics.css";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 interface CostBreakdownItem {
   name: string;
@@ -46,8 +48,17 @@ const Analytics: React.FC = () => {
     const fetchAnalyticsData = async () => {
       try {
         setLoading(true);
-        const historyRes = await billsAPI.getHistory();
-        const bills: BillRecord[] = historyRes.data || [];
+        const token = localStorage.getItem("authToken");
+        const historyRes = await axios.get<ApiResponse<BillRecord[]>>(
+          `${API_BASE_URL}/api/v1/bills/history`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              ...(token && { Authorization: `Bearer ${token}` }),
+            },
+          }
+        );
+        const bills: BillRecord[] = historyRes.data.data || [];
 
         if (bills.length === 0) {
           // Set empty/default data

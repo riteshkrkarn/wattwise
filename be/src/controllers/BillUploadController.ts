@@ -12,12 +12,6 @@ const pdfParse = require("pdf-parse");
 
 export class BillUploadController {
   static uploadAndParse = asyncHandler(async (req: Request, res: Response) => {
-    console.log("\n" + "🚨".repeat(40));
-    console.log("🚨 BILL UPLOAD ENDPOINT HIT!");
-    console.log("🚨 File present:", !!req.file);
-    console.log("🚨 User:", req.user);
-    console.log("🚨".repeat(40) + "\n");
-
     // Check if file was uploaded
     if (!req.file) {
       throw new ApiError(400, "No file uploaded. Please upload a PDF file.");
@@ -28,14 +22,6 @@ export class BillUploadController {
       throw new ApiError(400, "Invalid file type. Only PDF files are allowed.");
     }
 
-    console.log(
-      `[BillUploadController] ========== PDF UPLOAD START ==========`
-    );
-    console.log(
-      `[BillUploadController] File received: ${req.file.originalname}`
-    );
-    console.log(`[BillUploadController] File size: ${req.file.size} bytes`);
-    console.log(`[BillUploadController] MIME type: ${req.file.mimetype}`);
     AILogger.log(`Processing uploaded PDF: ${req.file.originalname}`);
 
     try {
@@ -175,7 +161,6 @@ export class BillUploadController {
 
       pythonProcess.stdout.on("data", (data) => {
         const chunk = data.toString();
-        // console.log(`[BillUploadController] Chunk received: ${chunk.length} chars`);
         outputData += chunk;
       });
 

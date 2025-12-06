@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { AnimatedNavBar } from "../components/AnimatedNavBar";
 import { useLocation, useNavigate } from "react-router-dom";
-import { appliancesAPI, billsAPI, aiAPI } from "../utils/api";
 import type {
   BillData,
   EstimatedData,
@@ -9,10 +9,13 @@ import type {
   AIResult,
   Appliance,
   BreakdownItem,
+  ApiResponse,
 } from "../types";
 import toast from "react-hot-toast";
 import { Leaf, AlertTriangle, CheckCircle, TrendingDown } from "lucide-react";
 import "./Estimation.css";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 interface AnalysisResult {
   comparison: ComparisonResult;
@@ -39,9 +42,18 @@ const Estimation: React.FC = () => {
     const runInitialAnalysis = async () => {
       try {
         setLoading(true);
+        const token = localStorage.getItem("authToken");
+        const headers = {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        };
+
         // 1. Fetch Appliances
-        const appRes = await appliancesAPI.getAll();
-        const userAppliances = appRes.data || [];
+        const appRes = await axios.get<ApiResponse<Appliance[]>>(
+          `${API_BASE_URL}/api/v1/appliances`,
+          { headers }
+        );
+        const userAppliances = appRes.data.data || [];
 
         if (userAppliances.length === 0) {
           toast.error("No appliances found!");
@@ -56,15 +68,23 @@ const Estimation: React.FC = () => {
           watts: a.wattage,
         }));
 
-        const estRes = await billsAPI.estimate(rate, mappedApps);
-        const estimatedData = estRes.data;
+        const estRes = await axios.post<ApiResponse<EstimatedData>>(
+          `${API_BASE_URL}/api/v1/bills/estimate`,
+          { rate, appliances: mappedApps },
+          { headers }
+        );
+        const estimatedData = estRes.data.data;
 
         // 3. Compare
-        const compRes = await billsAPI.compare(
-          billData.totalAmount,
-          estimatedData
+        const compRes = await axios.post<ApiResponse<ComparisonResult>>(
+          `${API_BASE_URL}/api/v1/bills/compare`,
+          {
+            actualBill: billData.totalAmount,
+            estimatedData: estimatedData,
+          },
+          { headers }
         );
-        const comparisonData = compRes.data;
+        const comparisonData = compRes.data.data;
 
         setResults({
           comparison: comparisonData,
@@ -94,11 +114,23 @@ const Estimation: React.FC = () => {
   ) => {
     try {
       setAnalyzing(true);
-      const aiRes = await aiAPI.analyze({
-        breakdown: breakdown,
-        totalEstimatedUnits: totalUnits,
-      });
-      const aiData = aiRes.data;
+      const token = localStorage.getItem("authToken");
+      const aiRes = await axios.post<ApiResponse<AIResult>>(
+        `${API_BASE_URL}/api/v1/ai/analyze`,
+        {
+          billData: {
+            breakdown: breakdown,
+            totalEstimatedUnits: totalUnits,
+          },
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+        }
+      );
+      const aiData = aiRes.data.data;
       setResults((prev) => (prev ? { ...prev, ai: aiData } : null));
     } catch {
       console.error("AI Analysis failed");
@@ -111,6 +143,7 @@ const Estimation: React.FC = () => {
   const handleSave = async () => {
     if (!results || !billData) return;
     try {
+      const token = localStorage.getItem("authToken");
       const payload = {
         userId: "current-user",
         totalEstimatedUnits: results.estimation.totalUnits,
@@ -119,7 +152,14 @@ const Estimation: React.FC = () => {
         discrepancyRatio: results.comparison.discrepancyRatio,
         breakdown: results.comparison.normalizedBreakdown,
       };
-      await billsAPI.save(payload);
+
+      await axios.post(`${API_BASE_URL}/api/v1/bills/save`, payload, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+
       toast.success("Analysis saved to history!");
       navigate("/dashboard");
     } catch {

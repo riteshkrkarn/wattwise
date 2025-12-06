@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { AnimatedNavBar } from "../components/AnimatedNavBar";
 import SmartRecommendation from "../components/SmartRecommendation";
 import EnergyBarChart from "../components/EnergyBarChart";
 import { RelativeTimeCard } from "../components/ui/relative-time-card";
 import { AnimatedBackground } from "../components/AnimatedBackground";
-import { billsAPI, aiAPI } from "../utils/api";
-import type { BillRecord, AIResult } from "../types";
+import type { BillRecord, AIResult, ApiResponse } from "../types";
 import "./Dashboard.css";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const Dashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(Date.now());
@@ -32,13 +34,23 @@ const Dashboard: React.FC = () => {
     const fetchBillHistory = async () => {
       try {
         setLoadingBills(true);
-        const response = await billsAPI.getHistory();
-        if (response.success && response.data) {
-          setBillHistory(response.data);
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get<ApiResponse<BillRecord[]>>(
+          `${API_BASE_URL}/api/v1/bills/history`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              ...(token && { Authorization: `Bearer ${token}` }),
+            },
+          }
+        );
+
+        if (response.data.success && response.data.data) {
+          setBillHistory(response.data.data);
 
           // If we have bill data, fetch AI recommendations
-          if (response.data.length > 0) {
-            const latestBill = response.data[0];
+          if (response.data.data.length > 0) {
+            const latestBill = response.data.data[0];
             if (latestBill.breakdown) {
               fetchAIRecommendations(latestBill);
             }
@@ -58,13 +70,25 @@ const Dashboard: React.FC = () => {
   const fetchAIRecommendations = async (billData: BillRecord) => {
     try {
       setLoadingAI(true);
-      // Ensure specific fields are passed
-      const response = await aiAPI.analyze({
-        breakdown: billData.breakdown || [],
-        totalEstimatedUnits: billData.totalEstimatedUnits,
-      });
-      if (response.success && response.data) {
-        setAiRecommendations(response.data);
+      const token = localStorage.getItem("authToken");
+      const response = await axios.post<ApiResponse<AIResult>>(
+        `${API_BASE_URL}/api/v1/ai/analyze`,
+        {
+          billData: {
+            breakdown: billData.breakdown || [],
+            totalEstimatedUnits: billData.totalEstimatedUnits,
+          },
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+        }
+      );
+
+      if (response.data.success && response.data.data) {
+        setAiRecommendations(response.data.data);
       }
     } catch (error) {
       console.error("Failed to fetch AI recommendations:", error);

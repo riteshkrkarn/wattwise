@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { AnimatedNavBar } from "../components/AnimatedNavBar";
 import { useLocation, useNavigate } from "react-router-dom";
-import { appliancesAPI, billsAPI } from "../utils/api";
-import type { Appliance, Preset, BillData } from "../types";
+import type { Appliance, Preset, BillData, ApiResponse } from "../types";
 import toast from "react-hot-toast";
 import { Wind, Refrigerator, Fan, Lightbulb, Tv, Plug } from "lucide-react";
 import "./Appliances.css";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const Appliances: React.FC = () => {
   const navigate = useNavigate();
@@ -30,12 +32,25 @@ const Appliances: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem("authToken");
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      };
+
       const [presetsRes, appliancesRes] = await Promise.all([
-        billsAPI.getPresets(),
-        appliancesAPI.getAll(),
+        axios.get<ApiResponse<Preset[]>>(
+          `${API_BASE_URL}/api/v1/bills/presets`,
+          { headers }
+        ),
+        axios.get<ApiResponse<Appliance[]>>(
+          `${API_BASE_URL}/api/v1/appliances`,
+          { headers }
+        ),
       ]);
-      setPresets(presetsRes.data || []);
-      setAppliances(appliancesRes.data || []);
+
+      setPresets(presetsRes.data.data || []);
+      setAppliances(appliancesRes.data.data || []);
     } catch (error) {
       console.error("Failed to fetch data", error);
       toast.error("Failed to load appliances");
@@ -88,13 +103,24 @@ const Appliances: React.FC = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await appliancesAPI.create({
-        category: formData.category,
-        name: formData.name,
-        wattage: Number(formData.wattage),
-        count: Number(formData.count),
-        defaultUsageHours: Number(formData.dailyUsage),
-      });
+      const token = localStorage.getItem("authToken");
+      await axios.post(
+        `${API_BASE_URL}/api/v1/appliances`,
+        {
+          category: formData.category,
+          name: formData.name,
+          wattage: Number(formData.wattage),
+          count: Number(formData.count),
+          defaultUsageHours: Number(formData.dailyUsage),
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+        }
+      );
+
       toast.success("Appliance added");
       setShowForm(false);
       setFormData({
@@ -104,9 +130,18 @@ const Appliances: React.FC = () => {
         count: "1",
         dailyUsage: "",
       });
+
       // Refresh list
-      const res = await appliancesAPI.getAll();
-      setAppliances(res.data || []);
+      const res = await axios.get<ApiResponse<Appliance[]>>(
+        `${API_BASE_URL}/api/v1/appliances`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+        }
+      );
+      setAppliances(res.data.data || []);
     } catch {
       toast.error("Failed to add appliance");
     } finally {
@@ -117,7 +152,13 @@ const Appliances: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure?")) return;
     try {
-      await appliancesAPI.delete(id);
+      const token = localStorage.getItem("authToken");
+      await axios.delete(`${API_BASE_URL}/api/v1/appliances/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
       setAppliances((prev) => prev.filter((a) => a._id !== id));
       toast.success("Appliance deleted");
     } catch {
