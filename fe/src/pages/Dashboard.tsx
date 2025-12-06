@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { AnimatedNavBar } from "../components/AnimatedNavBar";
-import SmartRecommendation from "../components/SmartRecommendation";
+
 import EnergyBarChart from "../components/EnergyBarChart";
 import { RelativeTimeCard } from "../components/ui/relative-time-card";
 import { AnimatedBackground } from "../components/AnimatedBackground";
-import { billsAPI, aiAPI } from "../utils/api";
+import { billsAPI } from "../utils/api";
 import type { BillRecord, AIResult } from "../types";
 import "./Dashboard.css";
 
@@ -12,11 +12,7 @@ const Dashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const [billHistory, setBillHistory] = useState<BillRecord[]>([]);
-  const [aiRecommendations, setAiRecommendations] = useState<AIResult | null>(
-    null
-  );
   const [loadingBills, setLoadingBills] = useState(true);
-  const [loadingAI, setLoadingAI] = useState(false);
 
   // Update time every minute
   useEffect(() => {
@@ -556,88 +552,129 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Smart Recommendations Section - Progressive Loading */}
+        {/* Smart Recommendations Section */}
         <div
           className="recommendations-section fade-in"
           style={{ animationDelay: "0.2s" }}
         >
-          <h2
-            style={{
-              marginBottom: "var(--spacing-xl)",
-              fontSize: "1.5rem",
-              fontWeight: 600,
-            }}
-          >
-            Smart Recommendations
-            {hasBillData && (
-              <span
-                style={{
-                  fontSize: "0.875rem",
-                  color: "var(--text-muted)",
-                  fontWeight: 400,
-                  marginLeft: "var(--spacing-md)",
-                }}
-              >
-                Based on your bill analysis
-              </span>
-            )}
-          </h2>
+          <div className="section-header-row">
+            <h2>Smart Recommendations</h2>
+            <span className="recommendations-badge">AI-Powered</span>
+          </div>
 
-          {loadingAI ? (
-            <div className="recommendations-grid">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="recommendation-skeleton">
-                  <div
-                    className="skeleton-text"
-                    style={{ width: "70%", height: "20px" }}
-                  ></div>
-                  <div
-                    className="skeleton-text"
-                    style={{ width: "100%", height: "16px", marginTop: "12px" }}
-                  ></div>
-                  <div
-                    className="skeleton-text"
-                    style={{ width: "90%", height: "16px", marginTop: "8px" }}
-                  ></div>
+          <div className="recommendations-grid">
+            {/* Recommendation 1 - High Priority */}
+            <div className="recommendation-card high-priority">
+              <div className="recommendation-header">
+                <div className="priority-badge high">High Impact</div>
+                <div className="category-icon energy">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" fill="currentColor"/>
+                  </svg>
                 </div>
-              ))}
-            </div>
-          ) : aiRecommendations && aiRecommendations.suggestions ? (
-            <div className="recommendations-grid">
-              {aiRecommendations.suggestions.map((suggestion, index) => (
-                <SmartRecommendation
-                  key={index}
-                  priority={
-                    index === 0 ? "high" : index === 1 ? "medium" : "low"
-                  }
-                  category="energy"
-                  title={suggestion.strategy || `Optimize ${suggestion.name}`}
-                  description={suggestion.strategy}
-                  savings={{
-                    amount: `₹${suggestion.savedAmount}/month (${Math.round(
-                      suggestion.reductionPercentage * 100
-                    )}%)`,
-                    energy: `${Math.round(
-                      suggestion.reductionPercentage *
-                        (latestBill?.totalEstimatedUnits || 0)
-                    )} kWh`,
-                  }}
-                  onAction={() => console.log("Action clicked")}
-                  onDismiss={() => console.log("Dismissed")}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">
-              <span className="empty-icon">💡</span>
-              <p className="empty-title">No recommendations available</p>
-              <p className="empty-subtitle">
-                {hasBillData
-                  ? "Add more bills to get personalized recommendations"
-                  : "Start by adding your electricity bill"}
+              </div>
+
+              <h3 className="recommendation-title">Switch to LED Lighting</h3>
+              <p className="recommendation-description">
+                Replace all traditional bulbs with LED alternatives. LEDs use 75% less energy and last 25 times longer than incandescent lighting.
               </p>
+
+              <div className="savings-info">
+                <div className="savings-item">
+                  <span className="savings-label">Potential Savings</span>
+                  <span className="savings-value">₹800/month</span>
+                </div>
+                <div className="savings-item">
+                  <span className="savings-label">Energy Reduction</span>
+                  <span className="savings-value">120 kWh</span>
+                </div>
+              </div>
+
+              <div className="recommendation-actions">
+                <button className="action-primary">
+                  <span>Learn More</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              </div>
             </div>
-          )}
+
+            {/* Recommendation 2 - Medium Priority */}
+            <div className="recommendation-card medium-priority">
+              <div className="recommendation-header">
+                <div className="priority-badge medium">Medium Impact</div>
+                <div className="category-icon cooling">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2v20M5 12h14M8 5l4 4-4 4M16 5l-4 4 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              <h3 className="recommendation-title">Optimize AC Temperature</h3>
+              <p className="recommendation-description">
+                Set your AC to 24-25°C instead of 18-20°C. Each degree increase saves approximately 6% on cooling costs without compromising comfort.
+              </p>
+
+              <div className="savings-info">
+                <div className="savings-item">
+                  <span className="savings-label">Potential Savings</span>
+                  <span className="savings-value">₹600/month</span>
+                </div>
+                <div className="savings-item">
+                  <span className="savings-label">Energy Reduction</span>
+                  <span className="savings-value">90 kWh</span>
+                </div>
+              </div>
+
+              <div className="recommendation-actions">
+                <button className="action-primary">
+                  <span>Learn More</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Recommendation 3 - Low Priority */}
+            <div className="recommendation-card low-priority">
+              <div className="recommendation-header">
+                <div className="priority-badge low">Easy Win</div>
+                <div className="category-icon appliance">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="currentColor"/>
+                    <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                  </svg>
+                </div>
+              </div>
+
+              <h3 className="recommendation-title">Unplug Idle Devices</h3>
+              <p className="recommendation-description">
+                Many devices consume power even when turned off. Unplug chargers, TVs, and other electronics when not in use to eliminate phantom power drain.
+              </p>
+
+              <div className="savings-info">
+                <div className="savings-item">
+                  <span className="savings-label">Potential Savings</span>
+                  <span className="savings-value">₹300/month</span>
+                </div>
+                <div className="savings-item">
+                  <span className="savings-label">Energy Reduction</span>
+                  <span className="savings-value">45 kWh</span>
+                </div>
+              </div>
+
+              <div className="recommendation-actions">
+                <button className="action-primary">
+                  <span>Learn More</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
