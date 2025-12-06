@@ -107,7 +107,7 @@ const Appliances: React.FC = () => {
       // Refresh list
       const res = await appliancesAPI.getAll();
       setAppliances(res.data || []);
-    } catch (error) {
+    } catch {
       toast.error("Failed to add appliance");
     } finally {
       setSubmitting(false);
@@ -120,7 +120,7 @@ const Appliances: React.FC = () => {
       await appliancesAPI.delete(id);
       setAppliances((prev) => prev.filter((a) => a._id !== id));
       toast.success("Appliance deleted");
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete");
     }
   };

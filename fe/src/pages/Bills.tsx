@@ -129,7 +129,7 @@ const Bills: React.FC = () => {
     try {
       // Pass this data to the Appliances page via navigation state
       navigate("/appliances", { state: { billData: manualData } });
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     } finally {
       setIsSubmitting(false);
