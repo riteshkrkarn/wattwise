@@ -95,6 +95,13 @@ export interface AIAnalysisInput {
   totalEstimatedUnits: number;
 }
 
+export interface WeatherPrediction {
+  nextMonth: string;
+  weatherFactor: number;
+  predictedBill: number;
+  reasoning: string;
+}
+
 export interface AIResult {
   carbonFootprint: number;
   impact?: { trees: number; carKm: number; description: string };
@@ -105,6 +112,7 @@ export interface AIResult {
     savedAmount: number;
   }>;
   totalPotentialSavings: number;
+  weatherPrediction?: WeatherPrediction;
 }
 
 export interface BillRecord {

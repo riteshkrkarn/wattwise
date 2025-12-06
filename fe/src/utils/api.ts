@@ -229,6 +229,9 @@ export const appliancesAPI = {
   create: (data: CreateApplianceData) =>
     api.post<ApiResponse<Appliance>>("/api/v1/appliances", data),
 
+  update: (id: string, data: { count?: number; defaultUsageHours?: number }) =>
+    api.patch<ApiResponse<Appliance>>(`/api/v1/appliances/${id}`, data),
+
   delete: (id: string) =>
     api.delete<ApiResponse<OperationResponse>>(`/api/v1/appliances/${id}`),
 };

@@ -18,7 +18,9 @@ export class AIController {
       );
     }
 
-    AILogger.log("Starting Dual-Agent Analysis (CO2 + Recommendations)...");
+    AILogger.log(
+      "Starting Triple-Agent Analysis (CO2 + Recommendations + Weather)..."
+    );
 
     const inputData = JSON.stringify(billData);
     const pythonExecutable = path.resolve(
@@ -27,7 +29,11 @@ export class AIController {
     );
 
     // Function to spawn an agent
-    const spawnAgent = (scriptName: string, label: string): Promise<any> => {
+    const spawnAgent = (
+      scriptName: string,
+      label: string,
+      customInput?: string
+    ): Promise<any> => {
       return new Promise((resolve, reject) => {
         const scriptPath = path.join(
           __dirname,
@@ -39,7 +45,7 @@ export class AIController {
         let output = "";
         let error = "";
 
-        process.stdin.write(inputData);
+        process.stdin.write(customInput || inputData);
         process.stdin.end();
 
         process.stdout.on("data", (data) => {
@@ -71,13 +77,36 @@ export class AIController {
     };
 
     try {
-      // Run agents in parallel
-      const [co2Result, recResult] = await Promise.all([
+      // Prepare weather prediction input
+      const city = req.user?.city || "Mumbai";
+      const currentMonth = new Date().toLocaleString("en-US", {
+        month: "long",
+      });
+      const currentBill = billData.breakdown.reduce(
+        (sum: number, item: any) => sum + (item.estimatedCost || 0),
+        0
+      );
+
+      const weatherInput = JSON.stringify({
+        city,
+        currentMonth,
+        currentBill,
+        appliances: billData.breakdown.map((item: any) => ({
+          name: item.name,
+          count: item.count,
+          hours: item.hours,
+          watts: item.watts,
+        })),
+      });
+
+      // Run all three agents in parallel
+      const [co2Result, recResult, weatherResult] = await Promise.all([
         spawnAgent("co2_agent.py", "CO2"),
         spawnAgent("recommendation_agent.py", "Recommendation"),
+        spawnAgent("weather_prediction_agent.py", "Weather", weatherInput),
       ]);
 
-      AILogger.log("Both agents completed successfully.");
+      AILogger.log("All three agents completed successfully.");
 
       // Post-processing: Calculate cost savings in Rupees
       const suggestions = recResult.suggestions || [];
@@ -103,9 +132,10 @@ export class AIController {
 
       const finalResult = {
         carbonFootprint: co2Result.carbonFootprint,
-        impact: co2Result.impact, // New environmental impact field
+        impact: co2Result.impact,
         suggestions: enhancedSuggestions,
         totalPotentialSavings: parseFloat(totalPotentialSavings.toFixed(2)),
+        weatherPrediction: weatherResult, // NEW: Weather prediction for next month
       };
 
       res
@@ -114,7 +144,7 @@ export class AIController {
           new ApiResponse(
             200,
             finalResult,
-            "AI Analysis (Dual-Agent) generated successfully"
+            "AI Analysis (Triple-Agent) generated successfully"
           )
         );
     } catch (error: any) {

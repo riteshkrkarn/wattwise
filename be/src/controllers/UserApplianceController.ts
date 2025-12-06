@@ -44,6 +44,36 @@ export class UserApplianceController {
     }
   );
 
+  // Update an appliance
+  static updateAppliance = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const userId = req.user?._id;
+
+    if (!userId) {
+      throw new ApiError(401, "Unauthorized - User ID missing");
+    }
+
+    const { count, defaultUsageHours } = req.body;
+
+    if (!count || !defaultUsageHours) {
+      throw new ApiError(400, "Missing required fields");
+    }
+
+    const appliance = await UserAppliance.findOneAndUpdate(
+      { _id: id, userId }, // Ensure user owns this appliance
+      { count, defaultUsageHours },
+      { new: true, runValidators: true }
+    );
+
+    if (!appliance) {
+      throw new ApiError(404, "Appliance not found or unauthorized");
+    }
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, appliance, "Appliance updated successfully"));
+  });
+
   // Delete an appliance
   static deleteAppliance = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;

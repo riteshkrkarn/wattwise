@@ -23,6 +23,20 @@ export const applianceSchema = z.object({
   }),
 });
 
+export const updateApplianceSchema = z.object({
+  body: z.object({
+    count: z.number().int().min(1, "Count must be at least 1").optional(),
+    defaultUsageHours: z
+      .number()
+      .min(0)
+      .max(24, "Usage hours cannot exceed 24")
+      .optional(),
+  }),
+  params: z.object({
+    id: z.string().min(1, "Appliance ID is required"),
+  }),
+});
+
 // For validating the bulk estimation request input
 export const estimationSchema = z.object({
   body: z.object({
